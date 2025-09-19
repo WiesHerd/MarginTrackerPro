@@ -905,31 +905,33 @@ const App: React.FC = () => {
                   isDarkMode ? 'text-white' : 'text-gray-900'
                 }`}>Trade Execution Terminal</h2>
                 </div>
-                <button type="submit" className={`px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2`}>
+                <button form="tradeForm" type="submit" className={`px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2`}>
                   <DollarSign className="h-4 w-4" />
                   Execute Trade
                 </button>
               </div>
-              <form onSubmit={(e) => {
+              <form id="tradeForm" onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const tradeData = {
-                  ticker: formData.get('ticker') as string,
-                  buyPrice: parseFloat(formData.get('buyPrice') as string),
-                  buyDate: formData.get('buyDate') as string,
-                  quantity: parseInt(formData.get('quantity') as string),
-                  interestRate: selectedMarginRate, // This captures the rate at execution time
+                  ticker: String(formData.get('ticker') || '').toUpperCase(),
+                  buyPrice: Number(formData.get('buyPrice') || 0),
+                  buyDate: String(formData.get('buyDate') || new Date().toISOString().split('T')[0]),
+                  quantity: Number(formData.get('quantity') || 0),
+                  interestRate: selectedMarginRate,
                 };
                 console.log('Saving trade with interest rate:', selectedMarginRate);
                 addTrade(tradeData);
                 (e.target as HTMLFormElement).reset();
+                // Ensure UI shows the new row immediately
+                setTicker(tradeData.ticker);
               }}>
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
                   <div>
                     <label className={`block text-xs font-bold mb-2 transition-all duration-300 ${
                       isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}>Ticker Symbol</label>
-                    <input type="text" name="ticker" required className={`w-full h-[42px] px-3 border-2 rounded-lg focus:ring-2 transition-all duration-200 shadow-sm text-sm font-semibold ${
+                    <input type="text" name="ticker" defaultValue={ticker || ''} required className={`w-full h-[42px] px-3 border-2 rounded-lg focus:ring-2 transition-all duration-200 shadow-sm text-sm font-semibold ${
                       isDarkMode 
                         ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-blue-500/30 focus:border-blue-400'
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500/30 focus:border-blue-400'
