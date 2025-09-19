@@ -168,6 +168,28 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
     return `${(value * 100).toFixed(3)}%`;
   };
 
+  // What‑If Profit Simulator state
+  const initialSimPrice = (metrics && typeof metrics.currentPrice === 'number')
+    ? metrics.currentPrice
+    : trade.buyPrice;
+  const [simPrice, setSimPrice] = useState<number>(initialSimPrice);
+  const [simDays, setSimDays] = useState<number>(30);
+
+  const priceMin = Math.max(0, initialSimPrice * 0.5);
+  const priceMax = Math.max(initialSimPrice * 1.5, trade.buyPrice * 1.5);
+
+  const simulatePnL = () => {
+    const dailyRate = selectedRate / 100 / 365;
+    const principal = trade.buyPrice * trade.quantity;
+    const interest = principal * dailyRate * simDays;
+    const grossPnL = (simPrice - trade.buyPrice) * trade.quantity;
+    const netPnL = grossPnL - interest;
+    const breakEvenPrice = trade.buyPrice + (interest / trade.quantity);
+    const requiredGainPct = (breakEvenPrice - trade.buyPrice) / trade.buyPrice;
+    return { interest, grossPnL, netPnL, breakEvenPrice, requiredGainPct };
+  };
+  const sim = simulatePnL();
+
   return (
     <div className="space-y-4">
       {/* Hero Section - Current Position */}
@@ -463,6 +485,103 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* What‑If Profit Simulator */}
+      <div className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-slate-600/30' 
+          : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200/50'
+      } shadow-lg`}>
+        <div className="p-4 border-b border-slate-600/20">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+              <DollarSign className="h-3 w-3 text-white" />
+            </div>
+            <h4 className={`font-bold text-lg transition-all duration-300 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>What‑If Profit Simulator</h4>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Hypothetical Price */}
+            <div>
+              <div className={`text-xs font-semibold uppercase mb-2 ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Hypothetical Price</div>
+              <input
+                type="range"
+                min={priceMin}
+                max={priceMax}
+                step={0.01}
+                value={simPrice}
+                onChange={(e) => setSimPrice(parseFloat(e.target.value))}
+                className="w-full"
+              />
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  value={simPrice}
+                  onChange={(e) => setSimPrice(Math.max(0, parseFloat(e.target.value) || 0))}
+                  className={`w-32 px-2 py-1 rounded border text-sm font-semibold ${
+                    isDarkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+                <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
+                  Range {formatCurrency(priceMin)} – {formatCurrency(priceMax)}
+                </div>
+              </div>
+            </div>
+
+            {/* Days Open */}
+            <div>
+              <div className={`text-xs font-semibold uppercase mb-2 ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Days Open</div>
+              <input
+                type="range"
+                min={1}
+                max={365}
+                step={1}
+                value={simDays}
+                onChange={(e) => setSimDays(parseInt(e.target.value) || 1)}
+                className="w-full"
+              />
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={simDays}
+                  onChange={(e) => setSimDays(Math.min(365, Math.max(1, parseInt(e.target.value) || 1)))}
+                  className={`w-20 px-2 py-1 rounded border text-sm font-semibold ${
+                    isDarkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+                <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>days</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+              <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Net P&L</div>
+              <div className={`text-lg font-bold ${sim.netPnL >= 0 ? (isDarkMode ? 'text-green-400' : 'text-green-600') : (isDarkMode ? 'text-red-400' : 'text-red-600')}`}>{formatCurrency(sim.netPnL)}</div>
+            </div>
+            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+              <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Interest (sim)</div>
+              <div className={`text-lg font-bold ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{formatCurrency(sim.interest)}</div>
+            </div>
+            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+              <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Break‑Even Price</div>
+              <div className={`text-lg font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>{formatCurrency(sim.breakEvenPrice)}</div>
+            </div>
+            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+              <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Gain Required</div>
+              <div className={`text-lg font-bold ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>{(sim.requiredGainPct * 100).toFixed(2)}%</div>
+            </div>
+          </div>
         </div>
       </div>
 
