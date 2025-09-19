@@ -50,6 +50,7 @@ const App: React.FC = () => {
     price: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [showClearHistoryConfirm, setShowClearHistoryConfirm] = useState(false);
   const [chartData, setChartData] = useState<any[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [selectedMarginRate, setSelectedMarginRate] = useState<number>(12.575);
@@ -298,6 +299,11 @@ const App: React.FC = () => {
   const saveTradingHistory = (newHistory: Trade[]) => {
     setTradingHistory(newHistory);
     localStorage.setItem('tradingHistory', JSON.stringify(newHistory));
+  };
+
+  const clearTradingHistory = () => {
+    saveTradingHistory([]);
+    setShowClearHistoryConfirm(false);
   };
 
   // removed unused clearAllData
@@ -1448,6 +1454,18 @@ const App: React.FC = () => {
                   }`}>
                     {tradingHistory.length} completed
                   </div>
+                  <div className="ml-auto">
+                    <button
+                      onClick={() => setShowClearHistoryConfirm(true)}
+                      className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                        isDarkMode
+                          ? 'bg-red-600/20 text-red-300 hover:bg-red-600/30 border border-red-600/30'
+                          : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                      }`}
+                    >
+                      Clear History
+                    </button>
+                  </div>
                 </div>
                             </div>
 
@@ -2103,6 +2121,34 @@ const App: React.FC = () => {
                     className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                   >
                     Delete Trade
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeScreen === 'trading' && showClearHistoryConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-red-600">Clear Trading History</h3>
+                <button onClick={() => setShowClearHistoryConfirm(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+              </div>
+              <div className="space-y-4">
+                <p className="text-gray-700">This will permanently remove all completed trades from this browser. This cannot be undone.</p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setShowClearHistoryConfirm(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={clearTradingHistory}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Clear History
                   </button>
                 </div>
               </div>
