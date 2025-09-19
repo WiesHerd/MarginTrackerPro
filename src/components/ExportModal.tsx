@@ -15,7 +15,7 @@ const ExportModal: React.FC = () => {
   const lots = useSelector((state: RootState) => state.lots.lots);
   const ledger = useSelector((state: RootState) => state.ledger.entries);
 
-  const [exportType, setExportType] = useState<'trades' | 'ledger' | 'all'>('trades');
+  const [exportType, setExportType] = useState<'trades' | 'ledger' | 'history' | 'simulator' | 'all'>('trades');
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
@@ -36,6 +36,29 @@ const ExportModal: React.FC = () => {
           header: true,
         });
         filename = `interest_ledger_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+        downloadCSV(csvData, filename);
+      } else if (exportType === 'history') {
+        const closed = trades.filter(t => (t as any).sellPrice);
+        const csvData = Papa.unparse(closed, { header: true });
+        filename = `trading_history_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+        downloadCSV(csvData, filename);
+      } else if (exportType === 'simulator') {
+        // Pull last used simulator inputs if saved in localStorage; fall back to derived values
+        const sim = JSON.parse(localStorage.getItem('simulatorLast') || 'null');
+        const rows = sim ? [sim] : [
+          {
+            ticker: (trades[0]?.ticker) || '',
+            buyPrice: trades[0]?.buyPrice || '',
+            quantity: trades[0]?.quantity || '',
+            hypoPrice: '',
+            days: '',
+            interest: '',
+            netPnL: '',
+            breakEvenPrice: '',
+          }
+        ];
+        const csvData = Papa.unparse(rows, { header: true });
+        filename = `simulator_${format(new Date(), 'yyyy-MM-dd')}.csv`;
         downloadCSV(csvData, filename);
       } else if (exportType === 'all') {
         const jsonData = await StorageService.exportData();
@@ -102,7 +125,7 @@ const ExportModal: React.FC = () => {
                   name="exportType"
                   value="trades"
                   checked={exportType === 'trades'}
-                  onChange={(e) => setExportType(e.target.value as 'trades' | 'ledger' | 'all')}
+                  onChange={(e) => setExportType(e.target.value as any)}
                   className="mr-3"
                 />
                 <div className="flex items-center space-x-3">
@@ -120,9 +143,44 @@ const ExportModal: React.FC = () => {
                   name="exportType"
                   value="ledger"
                   checked={exportType === 'ledger'}
-                  onChange={(e) => setExportType(e.target.value as 'trades' | 'ledger' | 'all')}
+                  onChange={(e) => setExportType(e.target.value as any)}
                   className="mr-3"
                 />
+              <label className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportType"
+                  value="history"
+                  checked={exportType === 'history'}
+                  onChange={(e) => setExportType(e.target.value as any)}
+                  className="mr-3"
+                />
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">Trading History (CSV)</p>
+                    <p className="text-sm text-gray-600">Closed trades only</p>
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportType"
+                  value="simulator"
+                  checked={exportType === 'simulator'}
+                  onChange={(e) => setExportType(e.target.value as any)}
+                  className="mr-3"
+                />
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-5 w-5 text-indigo-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">What‑If Scenario (CSV)</p>
+                    <p className="text-sm text-gray-600">Last simulator inputs</p>
+                  </div>
+                </div>
+              </label>
                 <div className="flex items-center space-x-3">
                   <FileText className="h-5 w-5 text-green-600" />
                   <div>
@@ -177,6 +235,20 @@ const ExportModal: React.FC = () => {
                 <p className="text-xs text-gray-500">
                   Trades, lots, ledger, broker settings, app settings
                 </p>
+              </div>
+            )}
+
+            {exportType === 'history' && (
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Exports closed trades with columns:</p>
+                <p className="text-xs text-gray-500 font-mono">id, ticker, buyPrice, sellPrice, quantity, buyDate, sellDate, interestRate</p>
+              </div>
+            )}
+
+            {exportType === 'simulator' && (
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Exports last used What‑If inputs:</p>
+                <p className="text-xs text-gray-500 font-mono">ticker, buyPrice, quantity, hypoPrice, days, interest, netPnL, breakEvenPrice</p>
               </div>
             )}
           </div>

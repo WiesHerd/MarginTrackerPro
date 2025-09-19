@@ -190,6 +190,24 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
   };
   const sim = simulatePnL();
 
+  // Persist last simulator inputs for export convenience
+  useEffect(() => {
+    try {
+      const payload = {
+        ticker: trade.ticker,
+        buyPrice: trade.buyPrice,
+        quantity: trade.quantity,
+        hypoPrice: simPrice,
+        days: simDays,
+        interest: sim.interest,
+        netPnL: sim.netPnL,
+        breakEvenPrice: sim.breakEvenPrice,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('simulatorLast', JSON.stringify(payload));
+    } catch {}
+  }, [trade.ticker, trade.buyPrice, trade.quantity, simPrice, simDays, sim.interest, sim.netPnL, sim.breakEvenPrice]);
+
   return (
     <div className="space-y-4">
       {/* Hero Section - Current Position */}
