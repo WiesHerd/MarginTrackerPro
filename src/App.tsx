@@ -1831,12 +1831,12 @@ const App: React.FC = () => {
 
         {activeScreen === 'trading' && selectedTrade && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className={`backdrop-blur-xl rounded-2xl border shadow-2xl max-w-lg w-full p-6 transition-all duration-300 ${
+            <div className={`backdrop-blur-xl rounded-2xl border shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 ${
               isDarkMode 
                 ? 'bg-slate-800/95 border-slate-700/50' 
                 : 'bg-white/95 border-gray-200/50'
             }`}>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center px-6 py-4 border-b">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <DollarSign className="h-5 w-5 text-white" />
@@ -1859,7 +1859,7 @@ const App: React.FC = () => {
                 </button>
               </div>
               
-              <div className="space-y-6">
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
                 {/* Trade Info */}
                 <div className={`rounded-xl p-4 transition-all duration-300 ${
                   isDarkMode 
@@ -1956,25 +1956,6 @@ const App: React.FC = () => {
                           title="Select the date when you sold the position"
                         />
                       </div>
-                    </div>
-
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        onClick={() => {
-                          const price = parseFloat(sellForm.price);
-                          if (!selectedTrade || !sellForm.price || isNaN(price) || price <= 0) return;
-                          updateTrade(selectedTrade.id, { sellPrice: price, sellDate: sellForm.date });
-                          setSelectedTrade(null);
-                        }}
-                        disabled={!sellForm.price || isNaN(parseFloat(sellForm.price)) || parseFloat(sellForm.price) <= 0}
-                        className={`px-5 py-2 rounded-xl font-semibold transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                          isDarkMode
-                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                        }`}
-                      >
-                        Sell Position
-                      </button>
                     </div>
                   </div>
                 )}
@@ -2073,6 +2054,25 @@ const App: React.FC = () => {
                     );
                   })()}
                 </div>
+              </div>
+
+              <div className="px-6 py-4 border-t flex justify-end">
+                <button
+                  onClick={() => {
+                    const price = parseFloat(sellForm.price);
+                    if (!selectedTrade || !sellForm.price || isNaN(price) || price <= 0) return;
+                    updateTrade(selectedTrade.id, { sellPrice: price, sellDate: sellForm.date });
+                    setSelectedTrade(null);
+                  }}
+                  disabled={!sellForm.price || isNaN(parseFloat(sellForm.price)) || parseFloat(sellForm.price) <= 0}
+                  className={`px-5 py-2 rounded-xl font-semibold transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isDarkMode
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  }`}
+                >
+                  Sell Position
+                </button>
               </div>
             </div>
           </div>
