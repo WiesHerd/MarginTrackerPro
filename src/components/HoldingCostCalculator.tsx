@@ -565,19 +565,19 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
 
           {/* Summary */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+            <div className={`rounded-lg p-3 border ${isDarkMode ? 'bg-slate-800/50 border-slate-600/30' : 'bg-gray-100/50 border-gray-200'}`}>
               <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Net P&L</div>
               <div className={`text-lg font-bold ${sim.netPnL >= 0 ? (isDarkMode ? 'text-green-400' : 'text-green-600') : (isDarkMode ? 'text-red-400' : 'text-red-600')}`}>{formatCurrency(sim.netPnL)}</div>
             </div>
-            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+            <div className={`rounded-lg p-3 border ${isDarkMode ? 'bg-slate-800/50 border-slate-600/30' : 'bg-gray-100/50 border-gray-200'}`}>
               <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Interest (sim)</div>
               <div className={`text-lg font-bold ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{formatCurrency(sim.interest)}</div>
             </div>
-            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+            <div className={`rounded-lg p-3 border ${isDarkMode ? 'bg-slate-800/50 border-slate-600/30' : 'bg-gray-100/50 border-gray-200'}`}>
               <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Break‑Even Price</div>
               <div className={`text-lg font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>{formatCurrency(sim.breakEvenPrice)}</div>
             </div>
-            <div className={`rounded-lg p-3 ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-100/50'}`}>
+            <div className={`rounded-lg p-3 border ${isDarkMode ? 'bg-slate-800/50 border-slate-600/30' : 'bg-gray-100/50 border-gray-200'}`}>
               <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Gain Required</div>
               <div className={`text-lg font-bold ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>{(sim.requiredGainPct * 100).toFixed(2)}%</div>
             </div>
