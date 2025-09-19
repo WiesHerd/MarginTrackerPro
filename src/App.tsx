@@ -2083,13 +2083,13 @@ const App: React.FC = () => {
         {/* Holding Cost Calculator Modal */}
         {showHoldingCalculator && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className={`rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-visible transition-all duration-300 ${
+            <div className={`rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${
               isDarkMode 
                 ? 'bg-slate-900 border border-slate-700'
                 : 'bg-white border border-gray-200'
             }`}>
               {/* Compact Header */}
-              <div className={`px-4 py-3 border-b transition-all duration-300 ${
+              <div className={`px-4 py-3 border-b rounded-t-xl transition-all duration-300 ${
                 isDarkMode ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-gray-50'
               }`}>
                 <div className="flex justify-between items-center">
