@@ -1074,12 +1074,18 @@ const App: React.FC = () => {
             
             <div className="p-8">
               {trades.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-slate-700/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <TrendingUp className="h-10 w-10 text-slate-400" />
+                <div className="text-center py-16">
+                  <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner ${
+                    isDarkMode 
+                      ? 'bg-slate-800/70 border border-slate-600/60' 
+                      : 'bg-white border border-gray-200'
+                  }`}>
+                    <TrendingUp className={`h-12 w-12 ${
+                      isDarkMode ? 'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]' : 'text-sky-600'
+                    }`} />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-300 mb-2">No Active Positions</h3>
-                  <p className="text-slate-500">Execute your first trade to start tracking your margin positions</p>
+                  <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No Active Positions</h3>
+                  <p className={`${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Execute your first trade to start tracking your margin positions</p>
                 </div>
               ) : (
                 <div className={`overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 ${
