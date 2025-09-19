@@ -428,6 +428,17 @@ const App: React.FC = () => {
     }
   };
 
+  // Auto-manage real-time updates: start when there are open trades and we're on trading screen; stop otherwise
+  useEffect(() => {
+    const hasOpenTrades = trades.some(t => !t.sellPrice);
+    if (activeScreen === 'trading' && hasOpenTrades && !priceUpdateInterval) {
+      startRealTimePriceUpdates();
+    }
+    if ((activeScreen !== 'trading' || !hasOpenTrades) && priceUpdateInterval) {
+      stopRealTimePriceUpdates();
+    }
+  }, [activeScreen, trades, priceUpdateInterval]);
+
   const deleteTrade = (id: string) => {
     const updatedTrades = trades.filter(trade => trade.id !== id);
     saveTrades(updatedTrades);
@@ -593,28 +604,9 @@ const App: React.FC = () => {
                    </nav>
                  </div>
                  
-                 {/* Control Panel - Real-time Toggle, Dark Mode Toggle and Last Updated */}
-                 <div className="flex items-center space-x-4">
-                   {/* Real-time Price Updates Toggle */}
-                   <button
-                     onClick={() => {
-                       if (priceUpdateInterval) {
-                         stopRealTimePriceUpdates();
-                       } else {
-                         startRealTimePriceUpdates();
-                       }
-                     }}
-                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                       priceUpdateInterval
-                         ? 'bg-green-500 text-white hover:bg-green-600'
-                         : 'bg-gray-500 text-white hover:bg-gray-600'
-                     }`}
-                     title={priceUpdateInterval ? 'Stop real-time updates' : 'Start real-time updates'}
-                   >
-                     {priceUpdateInterval ? '🟢 Live' : '⏸️ Paused'}
-                   </button>
-                   
-                   {/* Dark/Light Mode Toggle */}
+                {/* Control Panel - Dark Mode Toggle */}
+                <div className="flex items-center space-x-4">
+                  {/* Dark/Light Mode Toggle */}
                    <button
                      onClick={() => {
                        const newMode = !isDarkMode;
@@ -673,7 +665,6 @@ const App: React.FC = () => {
                   isDarkMode ? 'text-slate-400' : 'text-gray-600'
                 }`}>
                   Real-time margin trading performance
-                  {priceUpdateInterval && <span className="ml-2 text-green-400">🟢 Live Updates</span>}
                   <span className="ml-2 text-blue-400">📈 Market Data</span>
                 </p>
               </div>
