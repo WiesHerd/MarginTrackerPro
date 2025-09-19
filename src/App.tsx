@@ -46,6 +46,10 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+  const [sellForm, setSellForm] = useState<{ price: string; date: string }>({
+    price: '',
+    date: new Date().toISOString().split('T')[0]
+  });
   const [chartData, setChartData] = useState<any[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [selectedMarginRate, setSelectedMarginRate] = useState<number>(12.575);
@@ -60,6 +64,12 @@ const App: React.FC = () => {
     trade: Trade;
     metrics: any;
   } | null>(null);
+
+  useEffect(() => {
+    if (selectedTrade) {
+      setSellForm({ price: '', date: new Date().toISOString().split('T')[0] });
+    }
+  }, [selectedTrade]);
   const [tickerMarketData, setTickerMarketData] = useState<Record<string, { volume: number | null, isMarketOpen: boolean | null }>>({});
   const [selectedTimePeriod, setSelectedTimePeriod] = useState('1M');
   const [analystCard, setAnalystCard] = useState<{
@@ -1925,7 +1935,8 @@ const App: React.FC = () => {
                               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                           }`}
                           placeholder="Enter sell price"
-                          onChange={(e) => updateTrade(selectedTrade.id, { sellPrice: parseFloat(e.target.value) })}
+                          value={sellForm.price}
+                          onChange={(e) => setSellForm(prev => ({ ...prev, price: e.target.value }))}
                         />
                       </div>
                       <div>
@@ -1934,17 +1945,36 @@ const App: React.FC = () => {
                         }`}>Sell Date</label>
                         <input
                           type="date"
-                          defaultValue={new Date().toISOString().split('T')[0]}
+                          value={sellForm.date}
                           className={`w-full h-12 px-4 border-2 rounded-xl focus:ring-4 focus:ring-green-500/30 focus:border-green-400 transition-all duration-200 shadow-lg text-lg font-semibold ${
                             isDarkMode 
                               ? 'bg-slate-800 border-slate-600 text-white' 
                               : 'bg-white border-gray-300 text-gray-900'
                           }`}
-                          onChange={(e) => updateTrade(selectedTrade.id, { sellDate: e.target.value })}
+                          onChange={(e) => setSellForm(prev => ({ ...prev, date: e.target.value }))}
                           aria-label="Sell date"
                           title="Select the date when you sold the position"
                         />
                       </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => {
+                          const price = parseFloat(sellForm.price);
+                          if (!selectedTrade || !sellForm.price || isNaN(price) || price <= 0) return;
+                          updateTrade(selectedTrade.id, { sellPrice: price, sellDate: sellForm.date });
+                          setSelectedTrade(null);
+                        }}
+                        disabled={!sellForm.price || isNaN(parseFloat(sellForm.price)) || parseFloat(sellForm.price) <= 0}
+                        className={`px-5 py-2 rounded-xl font-semibold transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                          isDarkMode
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                        }`}
+                      >
+                        Sell Position
+                      </button>
                     </div>
                   </div>
                 )}
