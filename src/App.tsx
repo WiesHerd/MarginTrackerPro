@@ -1030,7 +1030,16 @@ const App: React.FC = () => {
                   }`}>Trading Positions</h2>
                 </div>
                 {trades.length > 0 && (
-                  <button
+                  <div className="flex items-center gap-3">
+                    <span className={`hidden sm:inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${
+                      priceUpdateInterval
+                        ? (isDarkMode ? 'border-emerald-500/40 text-emerald-300' : 'border-emerald-300 text-emerald-600')
+                        : (isDarkMode ? 'border-slate-600 text-slate-400' : 'border-gray-300 text-gray-600')
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${priceUpdateInterval ? 'bg-emerald-400' : 'bg-gray-400'}`}></span>
+                      Auto-refresh {priceUpdateInterval ? 'on' : 'off'}
+                    </span>
+                    <button
                     onClick={async () => {
                       console.log('[Refresh Prices] Button clicked');
                       // Refresh ALL trades (open and closed) so current price is always fresh
@@ -1075,6 +1084,7 @@ const App: React.FC = () => {
                     <TrendingUp className="h-4 w-4" />
                     Refresh Prices
                   </button>
+                  </div>
                 )}
               </div>
             </div>
