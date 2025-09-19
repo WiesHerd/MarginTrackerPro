@@ -37,7 +37,7 @@ export const BrokerSettingsSchema = z.object({
   brokerName: z.string().min(1),
   baseRateName: z.string().optional(),
   tiers: z.array(RateTierSchema).min(1, 'At least one rate tier required'),
-  dayCountBasis: z.enum([360, 365]),
+  dayCountBasis: z.enum(['360', '365']).transform(v => Number(v) as 360 | 365),
   initialMarginPct: z.number().min(0).max(1),
   maintenanceMarginPct: z.number().min(0).max(1)
 });
@@ -93,7 +93,7 @@ export const TradeFormSchema = z.object({
 export const BrokerSettingsFormSchema = z.object({
   brokerName: z.string().min(1, 'Broker name is required'),
   baseRateName: z.string().optional(),
-  dayCountBasis: z.enum([360, 365]),
+  dayCountBasis: z.enum(['360', '365']).transform(v => Number(v) as 360 | 365),
   initialMarginPct: z.number().min(0).max(1),
   maintenanceMarginPct: z.number().min(0).max(1),
   tiers: z.array(RateTierSchema).min(1, 'At least one rate tier required')

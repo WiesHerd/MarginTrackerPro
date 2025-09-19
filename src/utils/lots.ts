@@ -202,7 +202,6 @@ export function validateSellTrade(
   trade: Trade,
   lots: Lot[]
 ): { isValid: boolean; availableQty: number; error?: string } {
-  const tickerLots = getLotsForTicker(trade.ticker, lots);
   const availableQty = getTotalQuantityForTicker(trade.ticker, lots);
   
   if (availableQty < trade.qty) {

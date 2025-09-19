@@ -38,7 +38,7 @@ export function calculateDailyInterest(
  * Calculate effective APR for a given day based on ledger history
  */
 export function effectiveAPRByDay(
-  date: string,
+  _date: string,
   balance: number,
   tiers: RateTier[],
   manualOverride?: number
