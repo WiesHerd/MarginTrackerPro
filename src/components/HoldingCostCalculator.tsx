@@ -517,7 +517,7 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
                 step={0.01}
                 value={simPrice}
                 onChange={(e) => setSimPrice(parseFloat(e.target.value))}
-                className="w-full"
+                className="w-full h-1.5 appearance-none rounded-full bg-gray-300/60 accent-blue-600"
               />
               <div className="mt-2 flex items-center gap-2">
                 <input
@@ -545,7 +545,7 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
                 step={1}
                 value={simDays}
                 onChange={(e) => setSimDays(parseInt(e.target.value) || 1)}
-                className="w-full"
+                className="w-full h-1.5 appearance-none rounded-full bg-gray-300/60 accent-blue-600"
               />
               <div className="mt-2 flex items-center gap-2">
                 <input
