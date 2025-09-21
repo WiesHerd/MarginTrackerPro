@@ -1189,7 +1189,7 @@ const App: React.FC = () => {
               ? 'bg-slate-800/50 border border-slate-700/50' 
               : 'bg-white/90 border border-gray-200/50'
           }`}>
-            <div className={`p-8 border-b transition-all duration-300 ${
+            <div className={`p-4 border-b transition-all duration-300 ${
               isDarkMode ? 'border-slate-700/50' : 'border-gray-200/50'
             }`}>
               <div className="flex justify-between items-center">
@@ -1403,7 +1403,7 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <div className="p-8">
+            <div className="p-4">
               {trades.length === 0 ? (
                 <div className="text-center py-16">
                   <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner ${
@@ -1423,7 +1423,7 @@ const App: React.FC = () => {
                   {/* Mobile: Card Layout, Desktop: Table Layout */}
                   <div className="block sm:hidden">
                     {/* Mobile Card Layout */}
-                    <div className="space-y-4 p-4">
+                    <div className="space-y-3 p-3">
                       {trades.map((trade) => {
                         const metrics = calculateTradeMetrics(trade);
                         const isProfitable = metrics.totalReturn > 0;
@@ -1436,7 +1436,7 @@ const App: React.FC = () => {
                               : 'bg-white border-gray-200'
                           }`}>
                             {/* Google-Style Card Header */}
-                            <div className="p-6 pb-4">
+                            <div className="p-4 pb-3">
                               {/* Ticker and Status Row */}
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
@@ -1510,7 +1510,7 @@ const App: React.FC = () => {
                             </div>
 
                             {/* Google-Style Metrics Section */}
-                            <div className="px-6 pb-4">
+                            <div className="px-4 pb-3">
                               {/* Market Status - Google Style */}
                               <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 mb-4">
                                 <span className={`text-sm font-medium ${
@@ -1581,7 +1581,7 @@ const App: React.FC = () => {
                             </div>
 
                             {/* Mobile-Optimized Action Buttons (Icon Only) */}
-                            <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                            <div className="px-4 py-3 border-t border-gray-200 dark:border-slate-700">
                               <div className="flex items-center justify-center gap-4">
                                 <button
                                   onClick={() => setShowHoldingCalculator({ trade, metrics })}
