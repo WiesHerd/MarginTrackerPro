@@ -1441,10 +1441,10 @@ const App: React.FC = () => {
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                    isDarkMode ? 'bg-slate-700' : 'bg-gray-100'
+                                    isDarkMode ? 'bg-slate-700' : 'bg-blue-50 border border-blue-200'
                                   }`}>
                                     <span className={`text-lg font-bold ${
-                                      isDarkMode ? 'text-white' : 'text-gray-900'
+                                      isDarkMode ? 'text-white' : 'text-blue-700'
                                     }`}>{trade.ticker}</span>
                                   </div>
                                   <div>
@@ -1474,10 +1474,10 @@ const App: React.FC = () => {
                               </div>
 
                               {/* Current Price - Google Style */}
-                              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
-                                <div className={`text-sm font-medium ${
-                                  isDarkMode ? 'text-slate-300' : 'text-gray-600'
-                                }`}>Current Price</div>
+                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-blue-50 dark:bg-slate-700/50">
+                              <div className={`text-sm font-medium ${
+                                isDarkMode ? 'text-slate-300' : 'text-blue-700'
+                              }`}>Current Price</div>
                                 <div className="flex items-center gap-2">
                                   {metrics.currentPrice && !trade.sellPrice ? (
                                     <>
@@ -1509,10 +1509,10 @@ const App: React.FC = () => {
                             {/* Google-Style Metrics Section */}
                             <div className="px-4 pb-3">
                               {/* Market Status - Google Style */}
-                              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 mb-4">
-                                <span className={`text-sm font-medium ${
-                                  isDarkMode ? 'text-slate-300' : 'text-gray-600'
-                                }`}>Market Status</span>
+                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 mb-4">
+                              <span className={`text-sm font-medium ${
+                                isDarkMode ? 'text-slate-300' : 'text-gray-700'
+                              }`}>Market Status</span>
                                 <div className="flex items-center gap-2">
                                   {(() => {
                                     const md = tickerMarketData[trade.ticker.toUpperCase()];
@@ -1556,25 +1556,25 @@ const App: React.FC = () => {
                               </div>
 
                               {/* Key Metrics - Google Card Style */}
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
-                                  <div className={`text-xs font-medium mb-2 ${
-                                    isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                  }`}>Days Held</div>
-                                  <div className={`text-2xl font-bold ${
-                                    isDarkMode ? 'text-white' : 'text-gray-900'
-                                  }`}>{metrics.daysHeld}</div>
-                                </div>
-                                
-                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
-                                  <div className={`text-xs font-medium mb-2 ${
-                                    isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                  }`}>Interest Cost</div>
-                                  <div className={`text-2xl font-bold ${
-                                    isDarkMode ? 'text-red-400' : 'text-red-600'
-                                  }`}>{formatCurrency(metrics.interestCost)}</div>
-                                </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-4 rounded-xl bg-green-50 dark:bg-slate-700/50">
+                                <div className={`text-xs font-medium mb-2 ${
+                                  isDarkMode ? 'text-slate-400' : 'text-green-700'
+                                }`}>Days Held</div>
+                                <div className={`text-2xl font-bold ${
+                                  isDarkMode ? 'text-white' : 'text-green-800'
+                                }`}>{metrics.daysHeld}</div>
                               </div>
+                              
+                              <div className="p-4 rounded-xl bg-red-50 dark:bg-slate-700/50">
+                                <div className={`text-xs font-medium mb-2 ${
+                                  isDarkMode ? 'text-slate-400' : 'text-red-700'
+                                }`}>Interest Cost</div>
+                                <div className={`text-2xl font-bold ${
+                                  isDarkMode ? 'text-red-400' : 'text-red-700'
+                                }`}>{formatCurrency(metrics.interestCost)}</div>
+                              </div>
+                            </div>
                             </div>
 
                             {/* Mobile-Optimized Action Buttons (Icon Only) */}
