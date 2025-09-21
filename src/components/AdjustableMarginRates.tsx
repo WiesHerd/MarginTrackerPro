@@ -120,7 +120,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
       </div>
 
       {/* Rate Tiers */}
-      <div className="space-y-1">
+      <div className="space-y-2">
         {localTiers.map((tier, index) => {
           const isEditing = editingIndex === index;
           const effectiveRate = parseFloat((tier.apr * 100).toFixed(3));
@@ -128,7 +128,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
           return (
             <div
               key={index}
-              className={`border rounded-lg p-2 transition-all duration-200 ${
+              className={`border rounded-lg p-3 transition-all duration-200 ${
                 isDarkMode 
                   ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800/80' 
                   : 'bg-white border-gray-200 hover:bg-gray-50'
@@ -152,7 +152,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                                   className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     isDarkMode 
                                       ? 'bg-slate-700 border-slate-600 text-white' 
-                                      : 'bg-white border-gray-300 text-gray-900'
+                                      : 'bg-gray-50 border-gray-300 text-gray-900'
                                   }`}
                                   placeholder="0"
                                   min="0"
@@ -177,7 +177,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                                   className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     isDarkMode 
                                       ? 'bg-slate-700 border-slate-600 text-white' 
-                                      : 'bg-white border-gray-300 text-gray-900'
+                                      : 'bg-gray-50 border-gray-300 text-gray-900'
                                   }`}
                                   placeholder="No limit"
                                   min="0"
@@ -220,7 +220,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                    <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                      <button
                        onClick={() => handleCancel(index)}
-                       className={`px-4 py-2 text-sm rounded transition-colors touch-manipulation ${
+                       className={`px-6 py-3 text-sm rounded-lg transition-colors touch-manipulation min-h-[44px] ${
                          isDarkMode 
                            ? 'bg-slate-600 hover:bg-slate-500 text-white' 
                            : 'bg-gray-500 hover:bg-gray-600 text-white'
@@ -230,7 +230,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                      </button>
                     <button
                       onClick={() => handleSave(index)}
-                      className="px-4 py-2 text-sm rounded bg-blue-600 hover:bg-blue-700 text-white transition-colors touch-manipulation"
+                      className="px-6 py-3 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors touch-manipulation min-h-[44px]"
                     >
                       Save
                     </button>
@@ -256,7 +256,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                     </div>
                   </div>
                   
-                   <div className="flex items-center space-x-1 sm:space-x-2">
+                   <div className="flex items-center space-x-2">
                      <button
                        onClick={() => {
                          const newApr = Math.max(0, tier.apr - 0.0001);
@@ -264,14 +264,14 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                          handleTierChange(index, 'apr', newApr);
                          // Don't auto-save, let user use "Save All Changes" button
                        }}
-                       className={`p-2 sm:p-1 rounded transition-colors touch-manipulation ${
+                       className={`p-3 rounded-lg transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center ${
                          isDarkMode 
                            ? 'hover:bg-slate-700 text-slate-400' 
                            : 'hover:bg-gray-200 text-gray-500'
                        }`}
                        aria-label="Decrease rate by 0.01%"
                      >
-                       <ChevronDown className="h-4 w-4 sm:h-3 sm:w-3" />
+                       <ChevronDown className="h-5 w-5" />
                      </button>
                      
                      <div className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs font-mono min-w-[60px] text-center">
@@ -285,39 +285,39 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                          handleTierChange(index, 'apr', newApr);
                          // Don't auto-save, let user use "Save All Changes" button
                        }}
-                       className={`p-2 sm:p-1 rounded transition-colors touch-manipulation ${
+                       className={`p-3 rounded-lg transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center ${
                          isDarkMode 
                            ? 'hover:bg-slate-700 text-slate-400' 
                            : 'hover:bg-gray-200 text-gray-500'
                        }`}
                        aria-label="Increase rate by 0.01%"
                      >
-                       <ChevronUp className="h-4 w-4 sm:h-3 sm:w-3" />
+                       <ChevronUp className="h-5 w-5" />
                      </button>
                      
                      <button
                        onClick={() => handleEdit(index)}
-                       className={`p-2 sm:p-1 rounded transition-colors touch-manipulation ${
+                       className={`p-3 rounded-lg transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center ${
                          isDarkMode 
                            ? 'hover:bg-slate-700 text-slate-400' 
                            : 'hover:bg-gray-200 text-gray-500'
                        }`}
                        aria-label="Edit tier"
                      >
-                       <Edit3 className="h-4 w-4 sm:h-3 sm:w-3" />
+                       <Edit3 className="h-5 w-5" />
                      </button>
                      
                      {tiers.length > 1 && (
                        <button
                          onClick={() => handleDelete(index)}
-                         className={`p-2 sm:p-1 rounded transition-colors touch-manipulation ${
+                         className={`p-3 rounded-lg transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center ${
                            isDarkMode 
                              ? 'hover:bg-red-900/20 text-red-400' 
                              : 'hover:bg-red-50 text-red-500'
                          }`}
                          aria-label="Delete tier"
                        >
-                         <Trash2 className="h-4 w-4 sm:h-3 sm:w-3" />
+                         <Trash2 className="h-5 w-5" />
                        </button>
                      )}
                    </div>
@@ -340,7 +340,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
             // Clear status after 2 seconds
             setTimeout(() => setSaveStatus(''), 2000);
           }}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+          className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors touch-manipulation min-h-[44px] w-full sm:w-auto"
         >
           {saveStatus || 'Save All Changes'}
         </button>
