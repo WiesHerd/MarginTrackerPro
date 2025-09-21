@@ -152,7 +152,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                                   className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     isDarkMode 
                                       ? 'bg-slate-700 border-slate-600 text-white' 
-                                      : 'bg-gray-50 border-gray-300 text-gray-900'
+                                      : 'bg-white border-gray-300 text-gray-900'
                                   }`}
                                   placeholder="0"
                                   min="0"
@@ -177,7 +177,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                                   className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     isDarkMode 
                                       ? 'bg-slate-700 border-slate-600 text-white' 
-                                      : 'bg-gray-50 border-gray-300 text-gray-900'
+                                      : 'bg-white border-gray-300 text-gray-900'
                                   }`}
                                   placeholder="No limit"
                                   min="0"
