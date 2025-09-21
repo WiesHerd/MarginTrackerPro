@@ -2241,12 +2241,11 @@ const App: React.FC = () => {
               ? 'bg-slate-800/50 border border-slate-700/50' 
               : 'bg-white border border-gray-200'
           }`}>
-            {/* Single Line Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 sm:gap-0">
-              <div className="flex flex-col gap-3 flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                  <div className="flex items-center gap-3">
-                    <label className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+            {/* Optimized Mobile Header */}
+            <div className="flex flex-col gap-4 mb-8">
+              {/* Ticker Input Row - Mobile Optimized */}
+              <div className="flex items-center gap-3">
+                <label className={`text-sm font-medium whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
                   Ticker
                 </label>
                 <input
@@ -2254,43 +2253,13 @@ const App: React.FC = () => {
                   placeholder="Enter ticker (e.g., AAPL)"
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                      className={`w-32 px-3 py-1.5 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
+                  className={`flex-1 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
                     isDarkMode 
                       ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-sky-500/30 focus:border-sky-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-sky-500/30 focus:border-sky-400'
                   }`}
                 />
-              </div>
-            {recentTickers.length > 0 && (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                      <span className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Recent:</span>
-                      <div className="flex flex-wrap items-center gap-2">
-                  {recentTickers.map((recentTicker) => (
-                    <button
-                            key={`inline-${recentTicker}`}
-                      onClick={() => {
-                        setTicker(recentTicker);
-                        fetchPrice(recentTicker);
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        ticker === recentTicker
-                          ? (isDarkMode 
-                              ? 'bg-sky-600 text-white shadow-lg' 
-                              : 'bg-sky-600 text-white shadow-lg')
-                          : (isDarkMode 
-                              ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900')
-                      }`}
-                    >
-                      {recentTicker}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-                </div>
-              </div>
-                <div className="flex items-center gap-2">
+                {/* Get Button - Now inline with ticker */}
                 <button
                   type="button"
                   onClick={() => {
@@ -2298,40 +2267,46 @@ const App: React.FC = () => {
                     fetchPrice(ticker);
                   }}
                   disabled={!ticker || loading}
-                    className={`w-32 sm:w-44 shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200 shadow-md ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white'
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
-                }`}
+                  className={`px-4 py-2 rounded-lg font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all duration-200 shadow-md ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white'
+                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
+                  }`}
                 >
                   <Search className="h-4 w-4" />
-                    {loading ? 'Loading...' : (
-                      <>
-                        <span className="hidden sm:inline">Get Price</span>
-                        <span className="sm:hidden">Get</span>
-                      </>
-                    )}
+                  {loading ? 'Loading...' : 'Get'}
                 </button>
-                  
-                  {/* Refresh Button for Market Data */}
-                  <button
-                    onClick={() => {
-                      if (ticker) {
-                        console.log('[Market Refresh] clicked', { ticker });
-                        fetchPrice(ticker);
-                      }
-                    }}
-                    disabled={!ticker || loading}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
-                      isDarkMode 
-                        ? 'bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white' 
-                        : 'bg-gray-200 hover:bg-gray-300 text-gray-600 hover:text-gray-900'
-                    }`}
-                    title="Refresh price data"
-                  >
-                    <TrendingUp className="h-4 w-4" />
-                  </button>
+              </div>
+
+              {/* Recent Tickers Row */}
+              {recentTickers.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Recent:</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {recentTickers.map((recentTicker) => (
+                      <button
+                        key={`inline-${recentTicker}`}
+                        onClick={() => {
+                          setTicker(recentTicker);
+                          fetchPrice(recentTicker);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          ticker === recentTicker
+                            ? (isDarkMode 
+                                ? 'bg-sky-600 text-white shadow-lg' 
+                                : 'bg-sky-600 text-white shadow-lg')
+                            : (isDarkMode 
+                                ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900')
+                        }`}
+                      >
+                        {recentTicker}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              )}
+            </div>
             
               
               
