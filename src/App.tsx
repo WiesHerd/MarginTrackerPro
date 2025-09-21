@@ -714,13 +714,13 @@ const App: React.FC = () => {
 
                  {/* Mobile Navigation - Bottom Tab Style */}
                  <div className="sm:hidden flex items-center justify-center w-full">
-                   <nav className="flex items-center justify-around w-full max-w-sm bg-white dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
+                   <nav className="flex items-center justify-around w-full max-w-sm bg-gray-50 dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
                      <button
                        onClick={() => setActiveScreen('trading')}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'trading'
                            ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-gray-800')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
                        }`}
                      >
                        <DollarSign className="h-5 w-5" />
@@ -732,7 +732,7 @@ const App: React.FC = () => {
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'market'
                            ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-gray-800')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
                        }`}
                      >
                        <TrendingUp className="h-5 w-5" />
@@ -1474,7 +1474,7 @@ const App: React.FC = () => {
                               </div>
 
                               {/* Current Price - Google Style */}
-                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-blue-50 dark:bg-slate-700/50">
+                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-blue-50 dark:bg-slate-600/30">
                               <div className={`text-sm font-medium ${
                                 isDarkMode ? 'text-slate-300' : 'text-blue-700'
                               }`}>Current Price</div>
@@ -1509,7 +1509,7 @@ const App: React.FC = () => {
                             {/* Google-Style Metrics Section */}
                             <div className="px-4 pb-3">
                               {/* Market Status - Google Style */}
-                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 mb-4">
+                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-600/30 mb-4">
                               <span className={`text-sm font-medium ${
                                 isDarkMode ? 'text-slate-300' : 'text-gray-700'
                               }`}>Market Status</span>
@@ -1557,21 +1557,21 @@ const App: React.FC = () => {
 
                               {/* Key Metrics - Google Card Style */}
                             <div className="grid grid-cols-2 gap-3">
-                              <div className="p-4 rounded-xl bg-green-50 dark:bg-slate-700/50">
+                              <div className="p-4 rounded-xl bg-green-50 dark:bg-slate-600/30">
                                 <div className={`text-xs font-medium mb-2 ${
-                                  isDarkMode ? 'text-slate-400' : 'text-green-700'
+                                  isDarkMode ? 'text-slate-300' : 'text-green-700'
                                 }`}>Days Held</div>
                                 <div className={`text-2xl font-bold ${
                                   isDarkMode ? 'text-white' : 'text-green-800'
                                 }`}>{metrics.daysHeld}</div>
                               </div>
                               
-                              <div className="p-4 rounded-xl bg-red-50 dark:bg-slate-700/50">
+                              <div className="p-4 rounded-xl bg-red-50 dark:bg-slate-600/30">
                                 <div className={`text-xs font-medium mb-2 ${
-                                  isDarkMode ? 'text-slate-400' : 'text-red-700'
+                                  isDarkMode ? 'text-slate-300' : 'text-red-700'
                                 }`}>Interest Cost</div>
                                 <div className={`text-2xl font-bold ${
-                                  isDarkMode ? 'text-red-400' : 'text-red-700'
+                                  isDarkMode ? 'text-red-300' : 'text-red-700'
                                 }`}>{formatCurrency(metrics.interestCost)}</div>
                               </div>
                             </div>
