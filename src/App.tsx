@@ -714,7 +714,11 @@ const App: React.FC = () => {
 
                  {/* Mobile Navigation - Bottom Tab Style */}
                  <div className="sm:hidden flex items-center justify-center w-full">
-                   <nav className="flex items-center justify-around w-full max-w-sm bg-gray-50 dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
+                   <nav className={`flex items-center justify-around w-full max-w-sm rounded-full p-1 shadow-lg border ${
+                     isDarkMode 
+                       ? 'bg-slate-800 border-slate-700' 
+                       : 'bg-gray-50 border-gray-200'
+                   }`}>
                      <button
                        onClick={() => setActiveScreen('trading')}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
