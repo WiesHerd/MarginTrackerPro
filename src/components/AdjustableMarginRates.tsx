@@ -274,7 +274,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                        <ChevronDown className="h-5 w-5" />
                      </button>
                      
-                     <div className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs font-mono min-w-[60px] text-center">
+                     <div className="px-2 py-1 bg-gray-50 dark:bg-slate-700 rounded text-xs font-mono min-w-[60px] text-center">
                        {effectiveRate.toFixed(3)}%
                      </div>
                      
