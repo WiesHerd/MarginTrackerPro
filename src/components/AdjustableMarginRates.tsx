@@ -204,7 +204,7 @@ const AdjustableMarginRates: React.FC<AdjustableMarginRatesProps> = ({
                         className={`w-full px-2 py-1 pr-6 text-sm border rounded ${
                           isDarkMode 
                             ? 'bg-slate-700 border-slate-600 text-white' 
-                            : 'bg-white border-gray-300 text-gray-900'
+                            : 'bg-gray-50 border-gray-300 text-gray-900'
                         }`}
                         step="0.001"
                         min="0"
