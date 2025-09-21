@@ -50,86 +50,100 @@ const PositionsTable: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900">Positions</h2>
         <p className="text-sm text-gray-600">Current holdings and market values</p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="table-header">
-            <tr>
-              <th className="table-cell text-left">Ticker</th>
-              <th className="table-cell text-right">Quantity</th>
-              <th className="table-cell text-right">Market Price</th>
-              <th className="table-cell text-right">Market Value</th>
-              <th className="table-cell text-right">Unrealized P&L</th>
-              <th className="table-cell text-right">Maintenance Req</th>
-              <th className="table-cell text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tickers.map(ticker => {
-              const tickerLots = getLotsForTicker(ticker, lots);
-              const marketPrice = mockPrices[ticker] || 0;
-              const summary = getPositionSummary(ticker, tickerLots, marketPrice);
-              
-              return (
-                <tr key={ticker} className="table-row">
-                  <td className="table-cell">
-                    <div className="font-medium text-gray-900">{ticker}</div>
-                    <div className="text-sm text-gray-500">
-                      {tickerLots.length} lot{tickerLots.length !== 1 ? 's' : ''}
+      {/* Mobile-First Card Layout */}
+      <div className="p-4 sm:p-6 space-y-4">
+        {tickers.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No positions found</p>
+            <p className="text-sm text-gray-400 mt-1">Add a trade to get started</p>
+          </div>
+        ) : (
+          tickers.map(ticker => {
+            const tickerLots = getLotsForTicker(ticker, lots);
+            const marketPrice = mockPrices[ticker] || 0;
+            const summary = getPositionSummary(ticker, tickerLots, marketPrice);
+            
+            return (
+              <div key={ticker} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                {/* Header Row - Ticker and P&L */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <span className="text-blue-600 font-bold text-sm">{ticker}</span>
                     </div>
-                  </td>
-                  <td className="table-cell text-right">
-                    <span className={`font-medium ${summary.totalQty >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatNumber(summary.totalQty)}
-                    </span>
-                  </td>
-                  <td className="table-cell text-right">
-                    {marketPrice > 0 ? formatCurrency(marketPrice) : 'N/A'}
-                  </td>
-                  <td className="table-cell text-right">
-                    {summary.totalMarketValue > 0 ? formatCurrency(summary.totalMarketValue) : 'N/A'}
-                  </td>
-                  <td className="table-cell text-right">
-                    <div className="flex items-center justify-end space-x-1">
+                    <div>
+                      <div className="font-semibold text-gray-900">{ticker}</div>
+                      <div className="text-sm text-gray-500">
+                        {tickerLots.length} lot{tickerLots.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* P&L Display */}
+                  <div className="text-right">
+                    <div className={`text-lg font-bold ${summary.totalUnrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(summary.totalUnrealizedPnL)}
+                    </div>
+                    <div className="flex items-center justify-end gap-1 text-sm">
                       {summary.totalUnrealizedPnL >= 0 ? (
                         <TrendingUp className="h-4 w-4 text-green-600" />
                       ) : (
                         <TrendingDown className="h-4 w-4 text-red-600" />
                       )}
-                      <span className={`font-medium ${summary.totalUnrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(summary.totalUnrealizedPnL)}
-                      </span>
+                      <span className="text-gray-500">P&L</span>
                     </div>
-                  </td>
-                  <td className="table-cell text-right">
-                    <span className="text-gray-600">
-                      {formatCurrency(summary.totalRequiredMargin)}
-                    </span>
-                  </td>
-                  <td className="table-cell text-center">
-                    <button
-                      onClick={() => handleViewLots(ticker)}
-                      className="btn btn-sm btn-secondary flex items-center space-x-1"
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span>Lots</span>
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+                </div>
 
-        {tickers.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No positions found</p>
-            <p className="text-sm text-gray-400 mt-1">Add a trade to get started</p>
-          </div>
+                {/* Key Metrics - Mobile Optimized */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="text-xs text-gray-500 mb-1">Quantity</div>
+                    <div className={`text-lg font-semibold ${summary.totalQty >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatNumber(summary.totalQty)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="text-xs text-gray-500 mb-1">Market Price</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {marketPrice > 0 ? formatCurrency(marketPrice) : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="text-xs text-gray-500 mb-1">Market Value</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {summary.totalMarketValue > 0 ? formatCurrency(summary.totalMarketValue) : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="text-xs text-gray-500 mb-1">Maintenance</div>
+                    <div className="text-lg font-semibold text-orange-600">
+                      {formatCurrency(summary.totalRequiredMargin)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Button - Mobile Optimized */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => handleViewLots(ticker)}
+                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors min-h-[44px]"
+                  >
+                    <Eye className="h-5 w-5" />
+                    <span>View Details</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>
