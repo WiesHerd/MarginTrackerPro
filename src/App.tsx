@@ -745,7 +745,7 @@ const App: React.FC = () => {
                          isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-gray-800'
                        }`}
                      >
-                       <Settings className="h-5 w-5" />
+                       <Percent className="h-5 w-5" />
                        <span className="text-xs font-medium mt-0.5">Rates</span>
                      </button>
                    </nav>
