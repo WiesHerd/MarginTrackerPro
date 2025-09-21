@@ -1506,125 +1506,104 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Details Grid */}
-                            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                              <div>
-                                <div className={`text-xs font-medium ${
+                            {/* Key Metrics - Mobile Optimized (Only Most Important) */}
+                            <div className="space-y-3 mb-4">
+                              {/* Market Status */}
+                              <div className="flex items-center justify-between">
+                                <span className={`text-sm ${
                                   isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>Volume</div>
-                                <div className={`font-semibold ${
-                                  isDarkMode ? 'text-white' : 'text-gray-900'
-                                }`}>
-                                  {(() => {
-                                    const md = tickerMarketData[trade.ticker.toUpperCase()];
-                                    const vol = md?.volume ?? metrics.volume;
-                                    console.log(`[Volume Display] ${trade.ticker} - Market Data:`, md, 'Metrics Volume:', metrics.volume, 'Final Volume:', vol);
-                                    return (metrics.currentPrice && vol && vol > 0)
-                                      ? `${(vol / 1000000).toFixed(1)}M`
-                                      : (vol === 0 ? '0' : '—');
-                                  })()}
-                                </div>
-                                <div className={`text-xs ${
-                                  isDarkMode ? 'text-slate-500' : 'text-gray-500'
-                                }`}>
+                                }`}>Market Status</span>
+                                <div className="flex items-center gap-2">
                                   {(() => {
                                     const md = tickerMarketData[trade.ticker.toUpperCase()];
                                     const isOpen = (md?.isMarketOpen != null) ? md.isMarketOpen : metrics.isMarketOpen;
                                     const vol = md?.volume ?? metrics.volume;
                                     
-                                    // Weekend override - markets are always closed on weekends
                                     const now = new Date();
                                     const dayOfWeek = now.getDay();
                                     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                                     
                                     if (isWeekend) {
-                                      return '🔴 Closed (Weekend)';
+                                      return (
+                                        <>
+                                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                                          <span className="text-sm text-red-500">Closed (Weekend)</span>
+                                        </>
+                                      );
                                     }
                                     
                                     if (isOpen === false && (vol === 0 || vol === null)) {
-                                      return '🔴 Closed (No volume)';
+                                      return (
+                                        <>
+                                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                                          <span className="text-sm text-red-500">Closed</span>
+                                        </>
+                                      );
                                     }
-                                    return isOpen === null ? '—' : (isOpen ? '🟢 Open' : '🔴 Closed');
+                                    
+                                    return isOpen === null ? (
+                                      <span className="text-sm text-gray-500">—</span>
+                                    ) : (
+                                      <>
+                                        <div className={`w-2 h-2 rounded-full ${isOpen ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                        <span className={`text-sm ${isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                                          {isOpen ? 'Open' : 'Closed'}
+                                        </span>
+                                      </>
+                                    );
                                   })()}
                                 </div>
                               </div>
-                              <div>
-                                <div className={`text-xs font-medium ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>Risk</div>
-                                <div className={`font-semibold ${
-                                  isDarkMode ? 'text-white' : 'text-gray-900'
-                                }`}>{formatCurrency(metrics.marginUsed)}</div>
-                                <div className={`text-xs ${
-                                  metrics.priceChangePercent > 0 ? (isDarkMode ? 'text-green-400' : 'text-green-600') :
-                                  metrics.priceChangePercent < 0 ? (isDarkMode ? 'text-red-400' : 'text-red-600') :
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>
-                                  {metrics.priceChangePercent > 0 ? '+' : ''}{metrics.priceChangePercent.toFixed(2)}%
+
+                              {/* Essential Metrics Only */}
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
+                                  <div className={`text-xs font-medium mb-1 ${
+                                    isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                                  }`}>Days Held</div>
+                                  <div className={`text-lg font-bold ${
+                                    isDarkMode ? 'text-white' : 'text-gray-900'
+                                  }`}>{metrics.daysHeld}</div>
                                 </div>
-                              </div>
-                              <div>
-                                <div className={`text-xs font-medium ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>Days Held</div>
-                                <div className={`font-semibold ${
-                                  isDarkMode ? 'text-white' : 'text-gray-900'
-                                }`}>{metrics.daysHeld}</div>
-                              </div>
-                              <div>
-                                <div className={`text-xs font-medium ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>Rate</div>
-                                <div className={`font-semibold ${
-                                  isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                                }`}>{metrics.marginRate.toFixed(3)}%</div>
-                              </div>
-                              <div>
-                                <div className={`text-xs font-medium ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>Interest</div>
-                                <div className={`font-semibold ${
-                                  isDarkMode ? 'text-red-400' : 'text-red-600'
-                                }`}>{formatCurrency(metrics.interestCost)}</div>
-                              </div>
-                              <div>
-                                <div className={`text-xs font-medium ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                }`}>P&L</div>
-                                <div className={`font-semibold ${
-                                  metrics.profitLoss >= 0
-                                    ? (isDarkMode ? 'text-green-400' : 'text-green-600')
-                                    : (isDarkMode ? 'text-red-400' : 'text-red-600')
-                                }`}>
-                                  {formatCurrency(metrics.profitLoss)}
+                                
+                                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
+                                  <div className={`text-xs font-medium mb-1 ${
+                                    isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                                  }`}>Interest Cost</div>
+                                  <div className={`text-lg font-bold ${
+                                    isDarkMode ? 'text-red-400' : 'text-red-600'
+                                  }`}>{formatCurrency(metrics.interestCost)}</div>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Actions Row */}
-                            <div className="flex items-center justify-center gap-2 pt-3 border-t border-gray-200 dark:border-slate-700">
+                            {/* Actions Row - Mobile Optimized */}
+                            <div className="flex items-center justify-center gap-3 pt-4 border-t border-gray-200 dark:border-slate-700">
                               <button
                                 onClick={() => setShowHoldingCalculator({ trade, metrics })}
-                                className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105"
+                                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
                                 title="Model holding costs"
                               >
-                                <Calculator className="h-4 w-4" />
+                                <Calculator className="h-5 w-5" />
+                                <span className="text-sm font-medium">Calculate</span>
                               </button>
                               {!trade.sellPrice && (
                                 <button
                                   onClick={() => setSelectedTrade(trade)}
-                                  className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105"
+                                  className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
                                   title="Sell position"
                                 >
-                                  <TrendingDown className="h-4 w-4" />
+                                  <TrendingDown className="h-5 w-5" />
+                                  <span className="text-sm font-medium">Sell</span>
                                 </button>
                               )}
                               <button
                                 onClick={() => setShowDeleteConfirm(trade.id)}
-                                className="p-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105"
+                                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
                                 title="Delete trade"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-5 w-5" />
+                                <span className="text-sm font-medium">Delete</span>
                               </button>
                             </div>
                           </div>
