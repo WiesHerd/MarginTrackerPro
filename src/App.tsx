@@ -1419,16 +1419,10 @@ const App: React.FC = () => {
                   <p className={`${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Execute your first trade to start tracking your margin positions</p>
                 </div>
               ) : (
-                <div className={`overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 ${
-                  isDarkMode 
-                    ? 'border-slate-700/50 bg-slate-800/30' 
-                    : 'border-gray-200 bg-white'
-                }`}>
-
-                  {/* Mobile: Card Layout, Desktop: Table Layout */}
-                  <div className="block sm:hidden">
-                    {/* Mobile Card Layout */}
-                    <div className="space-y-4 p-4">
+                /* Mobile: Card Layout, Desktop: Table Layout */
+                <div className="block sm:hidden">
+                  {/* Mobile Card Layout */}
+                  <div className="space-y-4 p-4">
                       {trades.map((trade) => {
                         const metrics = calculateTradeMetrics(trade);
                         const isProfitable = metrics.totalReturn > 0;
@@ -1940,7 +1934,6 @@ const App: React.FC = () => {
                       </tbody>
                     </table>
                   </div>
-                </div>
               )}
                             </div>
                           </div>
