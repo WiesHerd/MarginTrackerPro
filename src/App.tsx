@@ -1615,7 +1615,7 @@ const App: React.FC = () => {
 
                 {/* Desktop Table Layout */}
                 <div className="hidden sm:block overflow-x-auto relative -mx-4 sm:mx-0">
-                    <table className="w-full">
+                  <table className="w-full">
                       <thead>
                         <tr className="transition-all duration-300">
                           <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
