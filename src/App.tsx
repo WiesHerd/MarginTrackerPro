@@ -1419,10 +1419,11 @@ const App: React.FC = () => {
                   <p className={`${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>Execute your first trade to start tracking your margin positions</p>
                 </div>
               ) : (
-                /* Mobile: Card Layout, Desktop: Table Layout */
-                <div className="block sm:hidden">
-                  {/* Mobile Card Layout */}
-                  <div className="space-y-4 p-4">
+                <>
+                  {/* Mobile: Card Layout, Desktop: Table Layout */}
+                  <div className="block sm:hidden">
+                    {/* Mobile Card Layout */}
+                    <div className="space-y-4 p-4">
                       {trades.map((trade) => {
                         const metrics = calculateTradeMetrics(trade);
                         const isProfitable = metrics.totalReturn > 0;
@@ -1934,6 +1935,7 @@ const App: React.FC = () => {
                       </tbody>
                     </table>
                   </div>
+                </>
               )}
                             </div>
                           </div>
