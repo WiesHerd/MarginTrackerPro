@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchYahooQuotes, fetchQuoteSummary } from './utils/yahoo';
 import * as Papa from 'papaparse';
-import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent } from 'lucide-react';
+import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent, Settings } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
 import HoldingCostCalculator from './components/HoldingCostCalculator';
 // Performance screen removed
