@@ -1443,75 +1443,91 @@ const App: React.FC = () => {
                         const percentageChange = ((metrics.totalReturn / (trade.buyPrice * trade.quantity)) * 100);
                         
                         return (
-                          <div key={trade.id} className={`p-4 rounded-xl border transition-all duration-300 ${
+                          <div key={trade.id} className={`mb-4 rounded-2xl shadow-sm border transition-all duration-300 ${
                             isDarkMode 
                               ? 'bg-slate-800/50 border-slate-700/50' 
                               : 'bg-white border-gray-200'
                           }`}>
-                            {/* Header Row */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <div className={`text-lg font-bold ${
-                                  isDarkMode ? 'text-white' : 'text-gray-900'
-                                }`}>{trade.ticker}</div>
-                                <div className={`text-sm ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-600'
+                            {/* Google-Style Card Header */}
+                            <div className="p-6 pb-4">
+                              {/* Ticker and Status Row */}
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                    isDarkMode ? 'bg-slate-700' : 'bg-gray-100'
+                                  }`}>
+                                    <span className={`text-lg font-bold ${
+                                      isDarkMode ? 'text-white' : 'text-gray-900'
+                                    }`}>{trade.ticker}</span>
+                                  </div>
+                                  <div>
+                                    <div className={`text-lg font-semibold ${
+                                      isDarkMode ? 'text-white' : 'text-gray-900'
+                                    }`}>{trade.ticker}</div>
+                                    <div className={`text-sm ${
+                                      isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                                    }`}>
+                                      {trade.quantity} shares @ {formatCurrency(trade.buyPrice)}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* P&L Badge */}
+                                <div className={`px-4 py-2 rounded-full ${
+                                  isProfitable
+                                    ? (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700')
+                                    : (isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')
                                 }`}>
-                                  {trade.quantity} shares @ {formatCurrency(trade.buyPrice)}
+                                  <div className="text-right">
+                                    <div className="text-sm font-semibold">
+                                      {isProfitable ? '+' : ''}{formatCurrency(metrics.totalReturn)}
+                                    </div>
+                                    <div className="text-xs">
+                                      {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                              <div className={`text-right ${
-                                isProfitable
-                                  ? (isDarkMode ? 'text-green-400' : 'text-green-600')
-                                  : (isDarkMode ? 'text-red-400' : 'text-red-600')
-                              }`}>
-                                <div className="text-lg font-bold">
-                                  {isProfitable ? '+' : ''}{formatCurrency(metrics.totalReturn)}
-                                </div>
-                                <div className="text-sm">
-                                  {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+
+                              {/* Current Price - Google Style */}
+                              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
+                                <div className={`text-sm font-medium ${
+                                  isDarkMode ? 'text-slate-300' : 'text-gray-600'
+                                }`}>Current Price</div>
+                                <div className="flex items-center gap-2">
+                                  {metrics.currentPrice && !trade.sellPrice ? (
+                                    <>
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                      <span className={`text-lg font-semibold ${
+                                        isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                                      }`}>
+                                        {formatCurrency(metrics.currentPrice)}
+                                      </span>
+                                    </>
+                                  ) : trade.sellPrice ? (
+                                    <>
+                                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                      <span className={`text-lg font-semibold ${
+                                        isDarkMode ? 'text-green-400' : 'text-green-600'
+                                      }`}>
+                                        {formatCurrency(trade.sellPrice)}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className={`text-lg ${
+                                      isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                                    }`}>—</span>
+                                  )}
                                 </div>
                               </div>
                             </div>
 
-                            {/* Current Price Row */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className={`text-sm ${
-                                isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                              }`}>Current Price</div>
-                              <div className="flex items-center gap-2">
-                                {metrics.currentPrice && !trade.sellPrice ? (
-                                  <>
-                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                                    <span className={`text-sm font-medium ${
-                                      isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                                    }`}>
-                                      {formatCurrency(metrics.currentPrice)}
-                                    </span>
-                                  </>
-                                ) : trade.sellPrice ? (
-                                  <>
-                                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                    <span className={`text-sm font-medium ${
-                                      isDarkMode ? 'text-green-400' : 'text-green-600'
-                                    }`}>
-                                      {formatCurrency(trade.sellPrice)}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <span className={`text-sm ${
-                                    isDarkMode ? 'text-slate-400' : 'text-gray-500'
-                                  }`}>—</span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Key Metrics - Mobile Optimized (Only Most Important) */}
-                            <div className="space-y-3 mb-4">
-                              {/* Market Status */}
-                              <div className="flex items-center justify-between">
-                                <span className={`text-sm ${
-                                  isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                            {/* Google-Style Metrics Section */}
+                            <div className="px-6 pb-4">
+                              {/* Market Status - Google Style */}
+                              <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 mb-4">
+                                <span className={`text-sm font-medium ${
+                                  isDarkMode ? 'text-slate-300' : 'text-gray-600'
                                 }`}>Market Status</span>
                                 <div className="flex items-center gap-2">
                                   {(() => {
@@ -1526,8 +1542,8 @@ const App: React.FC = () => {
                                     if (isWeekend) {
                                       return (
                                         <>
-                                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                                          <span className="text-sm text-red-500">Closed (Weekend)</span>
+                                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                          <span className="text-sm font-medium text-red-600">Closed (Weekend)</span>
                                         </>
                                       );
                                     }
@@ -1535,8 +1551,8 @@ const App: React.FC = () => {
                                     if (isOpen === false && (vol === 0 || vol === null)) {
                                       return (
                                         <>
-                                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                                          <span className="text-sm text-red-500">Closed</span>
+                                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                          <span className="text-sm font-medium text-red-600">Closed</span>
                                         </>
                                       );
                                     }
@@ -1545,8 +1561,8 @@ const App: React.FC = () => {
                                       <span className="text-sm text-gray-500">—</span>
                                     ) : (
                                       <>
-                                        <div className={`w-2 h-2 rounded-full ${isOpen ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                        <span className={`text-sm ${isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                                        <div className={`w-2 h-2 rounded-full ${isOpen ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                        <span className={`text-sm font-medium ${isOpen ? 'text-green-600' : 'text-red-600'}`}>
                                           {isOpen ? 'Open' : 'Closed'}
                                         </span>
                                       </>
@@ -1555,56 +1571,58 @@ const App: React.FC = () => {
                                 </div>
                               </div>
 
-                              {/* Essential Metrics Only */}
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
-                                  <div className={`text-xs font-medium mb-1 ${
+                              {/* Key Metrics - Google Card Style */}
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
+                                  <div className={`text-xs font-medium mb-2 ${
                                     isDarkMode ? 'text-slate-400' : 'text-gray-500'
                                   }`}>Days Held</div>
-                                  <div className={`text-lg font-bold ${
+                                  <div className={`text-2xl font-bold ${
                                     isDarkMode ? 'text-white' : 'text-gray-900'
                                   }`}>{metrics.daysHeld}</div>
                                 </div>
                                 
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
-                                  <div className={`text-xs font-medium mb-1 ${
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50">
+                                  <div className={`text-xs font-medium mb-2 ${
                                     isDarkMode ? 'text-slate-400' : 'text-gray-500'
                                   }`}>Interest Cost</div>
-                                  <div className={`text-lg font-bold ${
+                                  <div className={`text-2xl font-bold ${
                                     isDarkMode ? 'text-red-400' : 'text-red-600'
                                   }`}>{formatCurrency(metrics.interestCost)}</div>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Actions Row - Mobile Optimized */}
-                            <div className="flex items-center justify-center gap-3 pt-4 border-t border-gray-200 dark:border-slate-700">
-                              <button
-                                onClick={() => setShowHoldingCalculator({ trade, metrics })}
-                                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
-                                title="Model holding costs"
-                              >
-                                <Calculator className="h-5 w-5" />
-                                <span className="text-sm font-medium">Calculate</span>
-                              </button>
-                              {!trade.sellPrice && (
+                            {/* Google-Style Action Buttons */}
+                            <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                              <div className="flex items-center justify-center gap-3">
                                 <button
-                                  onClick={() => setSelectedTrade(trade)}
-                                  className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
-                                  title="Sell position"
+                                  onClick={() => setShowHoldingCalculator({ trade, metrics })}
+                                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
+                                  title="Model holding costs"
                                 >
-                                  <TrendingDown className="h-5 w-5" />
-                                  <span className="text-sm font-medium">Sell</span>
+                                  <Calculator className="h-5 w-5" />
+                                  <span className="font-medium">Calculate</span>
                                 </button>
-                              )}
-                              <button
-                                onClick={() => setShowDeleteConfirm(trade.id)}
-                                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 min-h-[44px]"
-                                title="Delete trade"
-                              >
-                                <Trash2 className="h-5 w-5" />
-                                <span className="text-sm font-medium">Delete</span>
-                              </button>
+                                {!trade.sellPrice && (
+                                  <button
+                                    onClick={() => setSelectedTrade(trade)}
+                                    className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
+                                    title="Sell position"
+                                  >
+                                    <TrendingDown className="h-5 w-5" />
+                                    <span className="font-medium">Sell</span>
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => setShowDeleteConfirm(trade.id)}
+                                  className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
+                                  title="Delete trade"
+                                >
+                                  <Trash2 className="h-5 w-5" />
+                                  <span className="font-medium">Delete</span>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
