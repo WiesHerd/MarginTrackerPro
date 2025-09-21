@@ -1613,8 +1613,8 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Desktop Table Layout */}
-                  <div className="hidden sm:block overflow-x-auto relative -mx-4 sm:mx-0">
+                {/* Desktop Table Layout */}
+                <div className="hidden sm:block overflow-x-auto relative -mx-4 sm:mx-0">
                     <table className="w-full">
                       <thead>
                         <tr className="transition-all duration-300">
