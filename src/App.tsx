@@ -1590,7 +1590,9 @@ const App: React.FC = () => {
                             </div>
 
                             {/* Mobile-Optimized Action Buttons (Icon Only) */}
-                            <div className="px-4 py-2 border-t border-gray-200 dark:border-slate-700">
+                            <div className={`px-4 py-2 border-t ${
+                              isDarkMode ? 'border-slate-700' : 'border-gray-200'
+                            }`}>
                               <div className="flex items-center justify-center gap-4">
                                 <button
                                   onClick={() => setShowHoldingCalculator({ trade, metrics })}
