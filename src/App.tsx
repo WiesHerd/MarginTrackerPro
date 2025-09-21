@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from './store';
 import { fetchYahooQuotes, fetchQuoteSummary } from './utils/yahoo';
 import * as Papa from 'papaparse';
-import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent, Settings } from 'lucide-react';
+import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent, Settings, PercentCircle } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
 import HoldingCostCalculator from './components/HoldingCostCalculator';
+import AdjustableMarginRates from './components/AdjustableMarginRates';
 // Performance screen removed
 
 interface Trade {
@@ -113,16 +116,8 @@ const App: React.FC = () => {
     volSMA: 20,
   });
   const [eventMarkers, setEventMarkers] = useState<{ dividends: { date: string; amount?: number }[]; splits: { date: string; ratio?: string }[] }>({ dividends: [], splits: [] });
-  const [brokerSettings] = useState<BrokerSettings>({
-    baseRate: 10.75, // Base rate from your data
-    marginRates: [
-      { minBalance: 0, maxBalance: 24999.99, marginRate: 1.825, effectiveRate: 12.575 },
-      { minBalance: 25000, maxBalance: 49999.99, marginRate: 1.325, effectiveRate: 12.075 },
-      { minBalance: 50000, maxBalance: 99999.99, marginRate: 0.375, effectiveRate: 11.125 },
-      { minBalance: 100000, maxBalance: 249999.99, marginRate: 0.325, effectiveRate: 11.075 },
-      { minBalance: 250000, maxBalance: 499999.99, marginRate: 0.075, effectiveRate: 10.825 }
-    ]
-  });
+  // Get broker settings from Redux store
+  const brokerSettings = useSelector((state: RootState) => state.broker.settings);
 
   // Recompute overlays whenever parameters or baseChart change
   useEffect(() => {
@@ -529,15 +524,17 @@ const App: React.FC = () => {
 
 
   const getMarginRateLabel = (rate: number) => {
-    const marginRate = brokerSettings.marginRates.find(r => r.effectiveRate === rate);
-    if (marginRate) {
+    const tier = brokerSettings.tiers.find(t => (t.apr * 100) === rate);
+    if (tier) {
       const formatToK = (amount: number) => {
         if (amount >= 1000) {
           return `$${(amount / 1000).toFixed(1)}K`;
         }
         return `$${amount.toLocaleString()}`;
       };
-      return `${formatToK(marginRate.minBalance)} - ${formatToK(marginRate.maxBalance)} (${rate.toFixed(3)}%)`;
+      const maxBalance = tier.maxBalance || Infinity;
+      const maxDisplay = maxBalance === Infinity ? 'No limit' : formatToK(maxBalance);
+      return `${formatToK(tier.minBalance)} - ${maxDisplay} (${rate.toFixed(3)}%)`;
     }
     return `${rate.toFixed(3)}%`;
   };
@@ -706,8 +703,8 @@ const App: React.FC = () => {
                          isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700'
                        }`}
                      >
-                       <Settings className="h-4 w-4" />
-                       <span>Settings</span>
+                       <PercentCircle className="h-4 w-4" />
+                       <span>Rates</span>
                      </button>
                    </nav>
                  </div>
@@ -749,7 +746,7 @@ const App: React.FC = () => {
                          isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-blue-500 hover:bg-blue-50'
                        }`}
                      >
-                       <Percent className="h-5 w-5" />
+                       <PercentCircle className="h-5 w-5" />
                        <span className="text-xs font-medium mt-0.5">Rates</span>
                      </button>
                    </nav>
@@ -1150,7 +1147,7 @@ const App: React.FC = () => {
                       defaultValue={new Date().toISOString().split('T')[0]} 
                       className={`w-full h-[42px] px-3 border rounded-lg focus:ring-2 transition-all duration-200 shadow-sm text-sm font-medium ${
                       isDarkMode 
-                        ? 'bg-slate-700/80 border-slate-500/60 text-white focus:ring-purple-500/40 focus:border-purple-400/80 [color-scheme:dark]'
+                        ? 'bg-slate-700/80 border-slate-500/60 text-white focus:ring-purple-500/40 focus:border-purple-400/80'
                         : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-500/40 focus:border-purple-400'
                       }`}
                       aria-label="Buy date"
@@ -1171,11 +1168,11 @@ const App: React.FC = () => {
                        }`}
                        title="Select margin rate based on account balance"
                      >
-                      {brokerSettings.marginRates.map((rate, index) => (
-                        <option key={index} value={rate.effectiveRate} className={`${
+                      {brokerSettings.tiers.map((tier, index) => (
+                        <option key={index} value={tier.apr * 100} className={`${
                           isDarkMode ? 'bg-slate-800 text-white' : 'bg-white text-gray-900'
                         }`}>
-                          {getMarginRateLabel(rate.effectiveRate)}
+                          {getMarginRateLabel(tier.apr * 100)}
                         </option>
                       ))}
                     </select>
@@ -2742,7 +2739,7 @@ const App: React.FC = () => {
                           value={sellForm.date}
                           className={`w-full h-12 px-4 border-2 rounded-xl focus:ring-4 focus:ring-green-500/30 focus:border-green-400 transition-all duration-200 shadow-lg text-lg font-semibold ${
                             isDarkMode 
-                              ? 'bg-slate-800 border-slate-600 text-white [color-scheme:dark]' 
+                              ? 'bg-slate-800 border-slate-600 text-white' 
                               : 'bg-white border-gray-300 text-gray-900'
                           }`}
                           onChange={(e) => setSellForm(prev => ({ ...prev, date: e.target.value }))}
@@ -3049,100 +3046,29 @@ const App: React.FC = () => {
         )}
 
          {showSettings && (
-           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-             <div className={`backdrop-blur-xl rounded-xl border shadow-2xl max-w-sm sm:max-w-2xl w-full p-6 transition-all duration-300 ${
+           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+             <div className={`w-full max-w-md rounded-lg border shadow-xl p-4 ${
                isDarkMode 
-                 ? 'bg-slate-800/95 border-slate-700/50' 
-                 : 'bg-white/95 border-gray-200/50'
+                 ? 'bg-slate-800 border-slate-700' 
+                 : 'bg-white border-gray-200'
              }`}>
-               <div className="flex justify-between items-center mb-4">
-                 <div className="flex items-center gap-2">
-                   <Percent className={`h-4 w-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-                   <h3 className={`text-lg font-semibold transition-all duration-300 ${
-                     isDarkMode ? 'text-white' : 'text-gray-900'
-                   }`}>Margin Rates</h3>
-                 </div>
+               <div className="flex justify-between items-center mb-3">
+                 <h3 className={`text-lg font-semibold ${
+                   isDarkMode ? 'text-white' : 'text-gray-900'
+                 }`}>Interest Rates</h3>
                  <button 
                    onClick={() => setShowSettings(false)} 
-                   className={`w-6 h-6 rounded flex items-center justify-center transition-all duration-200 text-sm ${
+                   className={`w-6 h-6 rounded flex items-center justify-center text-sm ${
                      isDarkMode 
-                       ? 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white'
-                       : 'bg-gray-200/50 hover:bg-gray-300/50 text-gray-600 hover:text-gray-900'
+                       ? 'hover:bg-slate-700 text-slate-400'
+                       : 'hover:bg-gray-100 text-gray-500'
                    }`}
                  >
                    ✕
                  </button>
                </div>
                
-               <div className="space-y-4">
-                 <div className={`border rounded-lg p-3 transition-all duration-300 ${
-                   isDarkMode 
-                     ? 'bg-slate-700/30 border-slate-600/30' 
-                     : 'bg-gray-100/50 border-gray-200/50'
-                 }`}>
-                   <div className="flex items-center gap-2 mb-2">
-                     <div className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-blue-400' : 'bg-blue-500'}`}></div>
-                     <span className={`text-sm font-medium ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>Rate Structure</span>
-                   </div>
-                   <p className={`text-xs transition-all duration-300 ${
-                     isDarkMode ? 'text-slate-400' : 'text-gray-600'
-                   }`}>
-                     Rates adjust automatically based on account balance
-                   </p>
-                 </div>
-                 
-                 <div className="space-y-2">
-                   {brokerSettings.marginRates.map((rate, index) => (
-                     <div key={index} className={`border rounded-lg p-3 transition-all duration-200 ${
-                       isDarkMode 
-                         ? 'bg-slate-700/40 border-slate-600/40 hover:bg-slate-700/60' 
-                         : 'bg-gray-50/50 border-gray-200/50 hover:bg-gray-100/50'
-                     }`}>
-                       <div className="flex justify-between items-center">
-                         <div className="flex-1">
-                           <div className={`text-sm font-medium transition-all duration-300 ${
-                             isDarkMode ? 'text-white' : 'text-gray-900'
-                           }`}>
-                             {formatCurrency(rate.minBalance)} - {formatCurrency(rate.maxBalance)}
-                           </div>
-                           <div className={`text-xs transition-all duration-300 ${
-                             isDarkMode ? 'text-slate-400' : 'text-gray-600'
-                           }`}>
-                             Base +{rate.marginRate.toFixed(3)}%
-                           </div>
-                         </div>
-                         <div className="text-right">
-                           <div className={`text-lg font-bold font-mono transition-all duration-300 ${
-                             isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                           }`}>
-                             {rate.effectiveRate.toFixed(3)}%
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
-                 
-                 <div className={`border rounded-lg p-3 transition-all duration-300 ${
-                   isDarkMode 
-                     ? 'bg-slate-700/30 border-slate-600/30' 
-                     : 'bg-gray-100/50 border-gray-200/50'
-                 }`}>
-                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2">
-                       <div className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-emerald-400' : 'bg-emerald-500'}`}></div>
-                       <span className={`text-sm font-medium transition-all duration-300 ${
-                         isDarkMode ? 'text-emerald-300' : 'text-emerald-600'
-                       }`}>Base Rate</span>
-                     </div>
-                     <div className={`text-lg font-bold font-mono transition-all duration-300 ${
-                       isDarkMode ? 'text-emerald-400' : 'text-emerald-600'
-                     }`}>
-                       {brokerSettings.baseRate.toFixed(3)}%
-                     </div>
-                   </div>
-                 </div>
-               </div>
+               <AdjustableMarginRates isDarkMode={isDarkMode} />
              </div>
            </div>
          )}

@@ -21,13 +21,16 @@ interface HoldingCostCalculatorProps {
   onClose: () => void;
   onApplyRate?: (tradeId: string, rate: number) => void;
   brokerSettings?: {
-    baseRate: number;
-    marginRates: Array<{
+    brokerName: string;
+    baseRateName?: string;
+    tiers: Array<{
       minBalance: number;
-      maxBalance: number;
-      marginRate: number;
-      effectiveRate: number;
+      maxBalance?: number;
+      apr: number;
     }>;
+    dayCountBasis: 360 | 365;
+    initialMarginPct: number;
+    maintenanceMarginPct: number;
   };
 }
 
@@ -263,28 +266,31 @@ const HoldingCostCalculator: React.FC<HoldingCostCalculatorProps> = ({
                         width: `${dropdownPosition.width}px`
                       }}
                     >
-                      {brokerSettings?.marginRates.map((rate, index) => {
+                      {brokerSettings?.tiers.map((tier, index) => {
                         const formatToK = (amount: number) => {
                           if (amount >= 1000) {
                             return `$${(amount / 1000).toFixed(1)}K`;
                           }
                           return `$${amount.toLocaleString()}`;
                         };
+                        const effectiveRate = tier.apr * 100;
+                        const maxBalance = tier.maxBalance || Infinity;
+                        const maxDisplay = maxBalance === Infinity ? 'No limit' : formatToK(maxBalance);
                         return (
                           <div
                             key={index}
                             onClick={() => {
-                              setSelectedRate(rate.effectiveRate);
+                              setSelectedRate(effectiveRate);
                               setIsDropdownOpen(false);
                             }}
                             className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
-                              selectedRate === rate.effectiveRate 
+                              selectedRate === effectiveRate 
                                 ? (isDarkMode ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700')
                                 : (isDarkMode ? 'text-blue-200 hover:bg-blue-700' : 'text-gray-900')
                             }`}
                           >
                             <div className="text-sm">
-                              {formatToK(rate.minBalance)} - {formatToK(rate.maxBalance)} ({rate.effectiveRate.toFixed(3)}%)
+                              {formatToK(tier.minBalance)} - {maxDisplay} ({effectiveRate.toFixed(3)}%)
                             </div>
                           </div>
                         );
