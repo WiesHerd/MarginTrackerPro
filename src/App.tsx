@@ -661,22 +661,21 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            {/* Right Side - Navigation and Controls */}
+            {/* Mobile-First Navigation */}
             <div className="flex items-center space-x-1 sm:space-x-6 flex-shrink-0">
-                 {/* Modern Tab Navigation */}
-                 <div className="flex items-center border-b border-gray-200 dark:border-slate-700">
-                   <nav className="flex space-x-0.5 sm:space-x-8">
+                 {/* Desktop Navigation */}
+                 <div className="hidden sm:flex items-center border-b border-gray-200 dark:border-slate-700">
+                   <nav className="flex space-x-8">
                      <button
                        onClick={() => setActiveScreen('trading')}
-                       className={`relative py-2 sm:py-4 px-1 sm:px-1 text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-0.5 sm:gap-2 ${
+                       className={`relative py-4 px-1 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                          activeScreen === 'trading'
                            ? (isDarkMode ? 'text-blue-400' : 'text-blue-600')
                            : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
                        }`}
                      >
-                       <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
-                       <span className="hidden sm:inline">Trading</span>
-                       <span className="sm:hidden">Trades</span>
+                       <DollarSign className="h-4 w-4" />
+                       <span>Trading</span>
                        {activeScreen === 'trading' && (
                          <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${
                            isDarkMode ? 'bg-blue-400' : 'bg-blue-600'
@@ -686,15 +685,14 @@ const App: React.FC = () => {
                      
                      <button
                        onClick={() => setActiveScreen('market')}
-                       className={`relative py-2 sm:py-4 px-1 sm:px-1 text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-0.5 sm:gap-2 ${
+                       className={`relative py-4 px-1 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                          activeScreen === 'market'
                            ? (isDarkMode ? 'text-blue-400' : 'text-blue-600')
                            : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
                        }`}
                      >
-                       <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                       <span className="hidden sm:inline">Market Data</span>
-                       <span className="sm:hidden">Charts</span>
+                       <TrendingUp className="h-4 w-4" />
+                       <span>Market Data</span>
                        {activeScreen === 'market' && (
                          <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${
                            isDarkMode ? 'bg-blue-400' : 'bg-blue-600'
@@ -702,28 +700,53 @@ const App: React.FC = () => {
                        )}
                      </button>
                      
-                    {/* Performance tab removed */}
-                     
                      <button
                        onClick={() => setShowSettings(true)}
-                       className={`relative py-2 sm:py-4 px-1 sm:px-1 text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-0.5 sm:gap-2 ${
+                       className={`relative py-4 px-1 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                          isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700'
                        }`}
                      >
-                       <Percent className="h-3 w-3 sm:h-4 sm:w-4" />
-                       <span className="hidden sm:inline">Rates</span>
-                       <span className="sm:hidden">Rates</span>
+                       <Settings className="h-4 w-4" />
+                       <span>Settings</span>
+                     </button>
+                   </nav>
+                 </div>
+
+                 {/* Mobile Navigation - Bottom Tab Style */}
+                 <div className="sm:hidden flex items-center justify-center w-full">
+                   <nav className="flex items-center justify-around w-full max-w-sm bg-white dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
+                     <button
+                       onClick={() => setActiveScreen('trading')}
+                       className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
+                         activeScreen === 'trading'
+                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
+                           : (isDarkMode ? 'text-slate-400' : 'text-gray-500')
+                       }`}
+                     >
+                       <DollarSign className="h-5 w-5" />
+                       <span className="text-xs font-medium mt-0.5">Trades</span>
                      </button>
                      
                      <button
-                       onClick={() => setShowExportModal(true)}
-                       className={`relative py-2 sm:py-4 px-1 sm:px-1 text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-0.5 sm:gap-2 ${
-                         isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700'
+                       onClick={() => setActiveScreen('market')}
+                       className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
+                         activeScreen === 'market'
+                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
+                           : (isDarkMode ? 'text-slate-400' : 'text-gray-500')
                        }`}
                      >
-                       <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                       <span className="hidden sm:inline">Export</span>
-                       <span className="sm:hidden">Export</span>
+                       <TrendingUp className="h-5 w-5" />
+                       <span className="text-xs font-medium mt-0.5">Charts</span>
+                     </button>
+                     
+                     <button
+                       onClick={() => setShowSettings(true)}
+                       className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
+                         isDarkMode ? 'text-slate-400' : 'text-gray-500'
+                       }`}
+                     >
+                       <Settings className="h-5 w-5" />
+                       <span className="text-xs font-medium mt-0.5">Settings</span>
                      </button>
                    </nav>
                  </div>
