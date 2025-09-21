@@ -671,7 +671,7 @@ const App: React.FC = () => {
                        className={`relative py-4 px-1 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                          activeScreen === 'trading'
                            ? (isDarkMode ? 'text-blue-400' : 'text-blue-600')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
                        }`}
                      >
                        <DollarSign className="h-4 w-4" />
@@ -688,7 +688,7 @@ const App: React.FC = () => {
                        className={`relative py-4 px-1 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                          activeScreen === 'market'
                            ? (isDarkMode ? 'text-blue-400' : 'text-blue-600')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
                        }`}
                      >
                        <TrendingUp className="h-4 w-4" />
@@ -714,13 +714,13 @@ const App: React.FC = () => {
 
                  {/* Mobile Navigation - Bottom Tab Style */}
                  <div className="sm:hidden flex items-center justify-center w-full">
-                   <nav className="flex items-center justify-around w-full max-w-sm bg-gray-50 dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
+                   <nav className="flex items-center justify-around w-full max-w-sm bg-white dark:bg-slate-800 rounded-full p-1 shadow-lg border border-gray-200 dark:border-slate-700">
                      <button
                        onClick={() => setActiveScreen('trading')}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'trading'
                            ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
                        }`}
                      >
                        <DollarSign className="h-5 w-5" />
@@ -732,7 +732,7 @@ const App: React.FC = () => {
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'market'
                            ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-500 hover:text-gray-700')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
                        }`}
                      >
                        <TrendingUp className="h-5 w-5" />
