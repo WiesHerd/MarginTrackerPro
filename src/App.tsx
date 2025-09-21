@@ -719,8 +719,8 @@ const App: React.FC = () => {
                        onClick={() => setActiveScreen('trading')}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'trading'
-                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
+                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-blue-500')
                        }`}
                      >
                        <DollarSign className="h-5 w-5" />
@@ -731,8 +731,8 @@ const App: React.FC = () => {
                        onClick={() => setActiveScreen('market')}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                          activeScreen === 'market'
-                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white')
-                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600')
+                           ? (isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white')
+                           : (isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-blue-500')
                        }`}
                      >
                        <TrendingUp className="h-5 w-5" />
@@ -742,7 +742,7 @@ const App: React.FC = () => {
                      <button
                        onClick={() => setShowSettings(true)}
                        className={`flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
-                         isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-gray-800'
+                         isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-gray-600 hover:text-blue-500'
                        }`}
                      >
                        <Percent className="h-5 w-5" />
