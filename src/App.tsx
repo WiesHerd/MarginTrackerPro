@@ -2244,8 +2244,8 @@ const App: React.FC = () => {
             {/* Optimized Mobile Header */}
             <div className="flex flex-col gap-4 mb-8">
               {/* Ticker Input Row - Mobile Optimized */}
-              <div className="flex items-center gap-3">
-                <label className={`text-sm font-medium whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+              <div className="flex items-center gap-2 sm:gap-3 w-full">
+                <label className={`text-sm font-medium whitespace-nowrap flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
                   Ticker
                 </label>
                 <input
@@ -2253,7 +2253,7 @@ const App: React.FC = () => {
                   placeholder="Enter ticker (e.g., AAPL)"
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                  className={`flex-1 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
+                  className={`flex-1 min-w-0 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
                     isDarkMode 
                       ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-sky-500/30 focus:border-sky-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-sky-500/30 focus:border-sky-400'
@@ -2267,14 +2267,15 @@ const App: React.FC = () => {
                     fetchPrice(ticker);
                   }}
                   disabled={!ticker || loading}
-                  className={`px-4 py-2 rounded-lg font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all duration-200 shadow-md ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200 shadow-md flex-shrink-0 ${
                     isDarkMode 
                       ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
                   }`}
                 >
                   <Search className="h-4 w-4" />
-                  {loading ? 'Loading...' : 'Get'}
+                  <span className="hidden sm:inline">{loading ? 'Loading...' : 'Get'}</span>
+                  <span className="sm:hidden">{loading ? '...' : 'Get'}</span>
                 </button>
               </div>
 
