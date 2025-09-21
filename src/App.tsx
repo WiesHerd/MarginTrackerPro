@@ -1424,14 +1424,6 @@ const App: React.FC = () => {
                     ? 'border-slate-700/50 bg-slate-800/30' 
                     : 'border-gray-200 bg-white'
                 }`}>
-                  {/* Modern Table Header */}
-                  <div className={`px-6 py-4 transition-all duration-300 ${
-                    isDarkMode ? 'bg-slate-800/50' : 'bg-gray-50'
-                  }`}>
-                    <h3 className={`text-lg font-semibold transition-all duration-300 ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}>Trading Positions</h3>
-                  </div>
 
                   {/* Mobile: Card Layout, Desktop: Table Layout */}
                   <div className="block sm:hidden">
@@ -1593,34 +1585,31 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Google-Style Action Buttons */}
+                            {/* Mobile-Optimized Action Buttons (Icon Only) */}
                             <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700">
-                              <div className="flex items-center justify-center gap-3">
+                              <div className="flex items-center justify-center gap-4">
                                 <button
                                   onClick={() => setShowHoldingCalculator({ trade, metrics })}
-                                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
-                                  title="Model holding costs"
+                                  className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 min-h-[48px] min-w-[48px] shadow-sm"
+                                  title="Calculate holding costs"
                                 >
-                                  <Calculator className="h-5 w-5" />
-                                  <span className="font-medium">Calculate</span>
+                                  <Calculator className="h-6 w-6" />
                                 </button>
                                 {!trade.sellPrice && (
                                   <button
                                     onClick={() => setSelectedTrade(trade)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
+                                    className="p-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all duration-200 min-h-[48px] min-w-[48px] shadow-sm"
                                     title="Sell position"
                                   >
-                                    <TrendingDown className="h-5 w-5" />
-                                    <span className="font-medium">Sell</span>
+                                    <TrendingDown className="h-6 w-6" />
                                   </button>
                                 )}
                                 <button
                                   onClick={() => setShowDeleteConfirm(trade.id)}
-                                  className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 min-h-[48px] shadow-sm"
+                                  className="p-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 min-h-[48px] min-w-[48px] shadow-sm"
                                   title="Delete trade"
                                 >
-                                  <Trash2 className="h-5 w-5" />
-                                  <span className="font-medium">Delete</span>
+                                  <Trash2 className="h-6 w-6" />
                                 </button>
                               </div>
                             </div>
