@@ -1448,9 +1448,6 @@ const App: React.FC = () => {
                                     }`}>{trade.ticker}</span>
                                   </div>
                                   <div>
-                                    <div className={`text-lg font-semibold ${
-                                      isDarkMode ? 'text-white' : 'text-gray-900'
-                                    }`}>{trade.ticker}</div>
                                     <div className={`text-sm ${
                                       isDarkMode ? 'text-slate-400' : 'text-gray-500'
                                     }`}>
@@ -1581,7 +1578,7 @@ const App: React.FC = () => {
                             </div>
 
                             {/* Mobile-Optimized Action Buttons (Icon Only) */}
-                            <div className="px-4 py-3 border-t border-gray-200 dark:border-slate-700">
+                            <div className="px-4 py-2 border-t border-gray-200 dark:border-slate-700">
                               <div className="flex items-center justify-center gap-4">
                                 <button
                                   onClick={() => setShowHoldingCalculator({ trade, metrics })}
