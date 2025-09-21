@@ -2307,16 +2307,6 @@ const App: React.FC = () => {
                 </div>
               )}
             </div>
-            
-              
-              
-                </div>
-
-            {/* Recent tickers moved inline next to ticker input */}
-
-            {/* Market Statistics moved inline to header above */}
-
-            {/* Period toggles moved inline to top row */}
 
             {/* Professional Trading Chart */}
             {chartData.length > 0 && (
