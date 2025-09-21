@@ -1478,7 +1478,9 @@ const App: React.FC = () => {
                               </div>
 
                               {/* Current Price - Google Style */}
-                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-blue-50 dark:bg-slate-600/30">
+                            <div className={`flex items-center justify-between py-3 px-4 rounded-xl ${
+                              isDarkMode ? 'bg-slate-600/30' : 'bg-blue-50'
+                            }`}>
                               <div className={`text-sm font-medium ${
                                 isDarkMode ? 'text-slate-300' : 'text-blue-700'
                               }`}>Current Price</div>
@@ -1513,7 +1515,9 @@ const App: React.FC = () => {
                             {/* Google-Style Metrics Section */}
                             <div className="px-4 pb-3">
                               {/* Market Status - Google Style */}
-                            <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 dark:bg-slate-600/30 mb-4">
+                            <div className={`flex items-center justify-between py-3 px-4 rounded-xl mb-4 ${
+                              isDarkMode ? 'bg-slate-600/30' : 'bg-gray-50'
+                            }`}>
                               <span className={`text-sm font-medium ${
                                 isDarkMode ? 'text-slate-300' : 'text-gray-700'
                               }`}>Market Status</span>
@@ -1561,7 +1565,9 @@ const App: React.FC = () => {
 
                               {/* Key Metrics - Google Card Style */}
                             <div className="grid grid-cols-2 gap-3">
-                              <div className="p-4 rounded-xl bg-green-50 dark:bg-slate-600/30">
+                              <div className={`p-4 rounded-xl ${
+                                isDarkMode ? 'bg-slate-600/30' : 'bg-green-50'
+                              }`}>
                                 <div className={`text-xs font-medium mb-2 ${
                                   isDarkMode ? 'text-slate-300' : 'text-green-700'
                                 }`}>Days Held</div>
@@ -1570,7 +1576,9 @@ const App: React.FC = () => {
                                 }`}>{metrics.daysHeld}</div>
                               </div>
                               
-                              <div className="p-4 rounded-xl bg-red-50 dark:bg-slate-600/30">
+                              <div className={`p-4 rounded-xl ${
+                                isDarkMode ? 'bg-slate-600/30' : 'bg-red-50'
+                              }`}>
                                 <div className={`text-xs font-medium mb-2 ${
                                   isDarkMode ? 'text-slate-300' : 'text-red-700'
                                 }`}>Interest Cost</div>
