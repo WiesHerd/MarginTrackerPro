@@ -2243,9 +2243,9 @@ const App: React.FC = () => {
           }`}>
             {/* Optimized Mobile Header */}
             <div className="flex flex-col gap-4 mb-8">
-              {/* Ticker Input Row - Mobile Optimized */}
-              <div className="flex items-center gap-2 sm:gap-3 w-full">
-                <label className={`text-sm font-medium whitespace-nowrap flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+              {/* Ticker Input Row - Responsive Design */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <label className={`text-sm font-medium whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
                   Ticker
                 </label>
                 <input
@@ -2253,7 +2253,7 @@ const App: React.FC = () => {
                   placeholder="Enter ticker (e.g., AAPL)"
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                  className={`flex-1 min-w-0 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
+                  className={`w-32 sm:w-40 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
                     isDarkMode 
                       ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-sky-500/30 focus:border-sky-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-sky-500/30 focus:border-sky-400'
