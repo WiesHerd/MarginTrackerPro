@@ -1444,7 +1444,7 @@ const App: React.FC = () => {
                               {/* Ticker and Status Row */}
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                                     isDarkMode ? 'bg-slate-700' : 'bg-blue-50 border border-blue-200'
                                   }`}>
                                     <span className={`text-lg font-bold ${
