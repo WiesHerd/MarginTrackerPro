@@ -2236,17 +2236,17 @@ const App: React.FC = () => {
           </div>
         )}
         {activeScreen === 'market' && (
-          <div className={`rounded-2xl p-8 backdrop-blur-sm transition-all duration-300 ${
+          <div className={`rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
             isDarkMode 
               ? 'bg-slate-800/50 border border-slate-700/50' 
               : 'bg-white border border-gray-200'
           }`}>
-            {/* Optimized Mobile Header */}
-            <div className="flex flex-col gap-4 mb-8">
-              {/* Ticker Input Row - Fixed width with Get button on right */}
-              <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <label className={`text-sm font-medium whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+            {/* Mobile-First Header - World-Class Standards */}
+            <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
+              {/* Mobile-First Ticker Input - World-Class Standards */}
+              <div className="flex items-center justify-between gap-3 w-full">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <label className={`text-base font-medium whitespace-nowrap flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
                     Ticker
                   </label>
                   <input
@@ -2254,14 +2254,15 @@ const App: React.FC = () => {
                     placeholder="Enter ticker (e.g., AAPL)"
                     value={ticker}
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    className={`w-32 sm:w-40 px-3 py-2 border-2 rounded-lg focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-sm ${
+                    className={`w-24 sm:w-32 md:w-40 px-4 py-3 border-2 rounded-xl focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-base min-h-[44px] ${
                       isDarkMode 
                         ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-sky-500/30 focus:border-sky-400'
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-sky-500/30 focus:border-sky-400'
                     }`}
+                    style={{ minHeight: '44px' }} // WCAG accessibility standard
                   />
                 </div>
-                {/* Get Button - Far right side */}
+                {/* Get Button - 44px minimum touch target */}
                 <button
                   type="button"
                   onClick={() => {
@@ -2269,22 +2270,23 @@ const App: React.FC = () => {
                     fetchPrice(ticker);
                   }}
                   disabled={!ticker || loading}
-                  className={`px-3 sm:px-4 py-2 rounded-lg font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200 shadow-md ${
+                  className={`px-4 py-3 rounded-xl font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all duration-200 shadow-lg min-h-[44px] min-w-[44px] ${
                     isDarkMode 
-                      ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
+                      ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white active:scale-95'
+                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white active:scale-95'
                   }`}
+                  style={{ minHeight: '44px', minWidth: '44px' }} // WCAG accessibility standard
                 >
-                  <Search className="h-4 w-4" />
-                  <span className="hidden sm:inline">{loading ? 'Loading...' : 'Get'}</span>
-                  <span className="sm:hidden">{loading ? '...' : 'Get'}</span>
+                  <Search className="h-5 w-5" />
+                  <span className="hidden sm:inline text-base">{loading ? 'Loading...' : 'Get'}</span>
+                  <span className="sm:hidden text-base">{loading ? '...' : 'Get'}</span>
                 </button>
               </div>
 
-              {/* Recent Tickers Row */}
+              {/* Recent Tickers - Mobile-Optimized */}
               {recentTickers.length > 0 && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <span className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Recent:</span>
+                <div className="flex flex-col gap-3">
+                  <span className={`text-base font-medium ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Recent:</span>
                   <div className="flex flex-wrap items-center gap-2">
                     {recentTickers.map((recentTicker) => (
                       <button
@@ -2293,15 +2295,16 @@ const App: React.FC = () => {
                           setTicker(recentTicker);
                           fetchPrice(recentTicker);
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        className={`px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 min-h-[44px] ${
                           ticker === recentTicker
                             ? (isDarkMode 
-                                ? 'bg-sky-600 text-white shadow-lg' 
-                                : 'bg-sky-600 text-white shadow-lg')
+                                ? 'bg-sky-600 text-white shadow-lg active:scale-95' 
+                                : 'bg-sky-600 text-white shadow-lg active:scale-95')
                             : (isDarkMode 
-                                ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white' 
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900')
+                                ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white active:scale-95' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 active:scale-95')
                         }`}
+                        style={{ minHeight: '44px' }} // WCAG accessibility standard
                       >
                         {recentTicker}
                       </button>
