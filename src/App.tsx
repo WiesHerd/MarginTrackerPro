@@ -1189,7 +1189,7 @@ const App: React.FC = () => {
               ? 'bg-slate-800/50 border border-slate-700/50' 
               : 'bg-white/90 border border-gray-200/50'
           }`}>
-            <div className={`p-4 border-b transition-all duration-300 ${
+            <div className={`p-3 border-b transition-all duration-300 ${
               isDarkMode ? 'border-slate-700/50' : 'border-gray-200/50'
             }`}>
               <div className="flex justify-between items-center">
@@ -1403,7 +1403,7 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <div className="p-4">
+            <div className="p-3">
               {trades.length === 0 ? (
                 <div className="text-center py-16">
                   <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner ${
