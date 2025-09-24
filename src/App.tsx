@@ -2612,7 +2612,7 @@ const App: React.FC = () => {
                             <span>0.0</span>
                             <span>+1.0</span>
                           </div>
-                          <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-1 bg-gray-200 rounded-full overflow-hidden relative">
                             <div 
                               className={`h-full transition-all duration-500 ${
                                 isPositive 
@@ -2621,7 +2621,8 @@ const App: React.FC = () => {
                               }`}
                               style={{ 
                                 width: `${Math.abs(correlation) * 100}%`,
-                                marginLeft: correlation < 0 ? `${(1 - Math.abs(correlation)) * 100}%` : '0%'
+                                position: 'absolute',
+                                left: correlation < 0 ? `${(1 - Math.abs(correlation)) * 100}%` : '0%'
                               }}
                             />
                           </div>
