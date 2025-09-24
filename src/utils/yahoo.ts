@@ -170,6 +170,101 @@ export async function fetchYahooQuotes(symbols: string[], useProxy = true): Prom
   return map;
 }
 
+// Fetch volume data using chart API with proxies
+export async function fetchVolumeData(symbols: string[], useProxy = true): Promise<Record<string, { volume: number | null, marketState?: string }>> {
+  console.log('[fetchVolumeData] Called with symbols:', symbols, 'useProxy:', useProxy);
+  if (symbols.length === 0) return {};
+  
+  const results: Record<string, { volume: number | null, marketState?: string }> = {};
+  
+  for (const symbol of symbols) {
+    try {
+      const directUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&includePrePost=true`;
+      
+      const proxyCandidates = (u: string) => [
+        `https://cors.isomorphic-git.org/${u}`,
+        `https://thingproxy.freeboard.io/fetch/${u}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      ];
+      
+      const urls = useProxy ? proxyCandidates(directUrl) : [directUrl];
+      
+      let data: any = null;
+      for (const url of urls) {
+        try {
+          console.log('[fetchVolumeData] Trying URL:', url);
+          const response = await fetch(url);
+          if (response.ok) {
+            const text = await response.text();
+            data = JSON.parse(text);
+            break;
+          }
+        } catch (e) {
+          console.warn('[fetchVolumeData] Failed for', url, e);
+          continue;
+        }
+      }
+      
+      if (data?.chart?.result?.[0]) {
+        const result = data.chart.result[0];
+        const meta = result.meta;
+        
+        // Get volume from meta or indicators
+        let volume = meta.regularMarketVolume;
+        if (!volume && result.indicators?.quote?.[0]?.volume) {
+          const volumes = result.indicators.quote[0].volume;
+          // Get the last non-null volume
+          for (let i = volumes.length - 1; i >= 0; i--) {
+            if (volumes[i] !== null && volumes[i] !== undefined) {
+              volume = volumes[i];
+              break;
+            }
+          }
+        }
+        
+        // Better market status detection
+        let isMarketOpen = false;
+        if (meta.regularMarketState === 'REGULAR') {
+          isMarketOpen = true;
+        } else if (meta.regularMarketState === 'PRE' || meta.regularMarketState === 'POST') {
+          // Pre/post market is considered "open" for display purposes
+          isMarketOpen = true;
+        } else if (meta.regularMarketState === 'CLOSED') {
+          isMarketOpen = false;
+        } else {
+          // For other states, try to determine from trading period
+          try {
+            const now = Math.floor(Date.now() / 1000);
+            const regular = meta?.currentTradingPeriod?.regular;
+            if (regular && typeof regular.start === 'number' && typeof regular.end === 'number') {
+              isMarketOpen = now >= regular.start && now <= regular.end;
+            }
+          } catch (e) {
+            // If we can't determine, default to false
+            isMarketOpen = false;
+          }
+        }
+        
+        results[symbol.toUpperCase()] = {
+          volume: volume || null,
+          marketState: meta.regularMarketState,
+          isMarketOpen: isMarketOpen
+        };
+        
+        console.log(`[fetchVolumeData] ${symbol} - Volume:`, volume, 'Market State:', meta.regularMarketState, 'isMarketOpen:', isMarketOpen);
+      } else {
+        results[symbol.toUpperCase()] = { volume: null };
+        console.warn(`[fetchVolumeData] No data for ${symbol}`);
+      }
+    } catch (error) {
+      console.warn(`[fetchVolumeData] Error fetching ${symbol}:`, error);
+      results[symbol.toUpperCase()] = { volume: null };
+    }
+  }
+  
+  return results;
+}
+
 // Fallback: fetch last price from chart API (works with proxies)
 export async function fetchChartPrice(symbol: string, useProxy = true): Promise<{ price: number | null, marketState?: string } | null> {
   try {

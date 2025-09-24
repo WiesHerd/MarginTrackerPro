@@ -471,11 +471,48 @@ const App: React.FC = () => {
           try {
         const enhancedData = await fetchEnhancedStockData(ticker);
         if (enhancedData?.currentPrice) {
-              console.log(`[Auto-refresh] Enhanced data updating ${ticker} to price:`, enhancedData.currentPrice);
+              console.log(`[Auto-refresh] Enhanced data updating ${ticker} to price:`, enhancedData.currentPrice, 'volume:', enhancedData.volume);
           updateAllTradesWithCurrentPrice(ticker, enhancedData.currentPrice);
+          
+          // Also update market data for volume and market status
+          setTickerMarketData(prev => ({
+            ...prev,
+            [ticker]: {
+              volume: enhancedData.volume || null,
+              isMarketOpen: enhancedData.isMarketOpen
+            }
+          }));
         }
           } catch (e) {
             console.warn(`[Auto-refresh] Failed to update ${ticker}:`, e);
+          }
+        }
+        
+        // If we still don't have volume data, try fetching it separately
+        const hasVolumeData = uniqueTickers.some(ticker => tickerMarketData[ticker]?.volume !== null);
+        if (!hasVolumeData) {
+          try {
+            console.log('[Auto-refresh] Fetching volume data separately');
+            const { fetchVolumeData } = await import('./utils/yahoo');
+            const volumeData = await fetchVolumeData(uniqueTickers, true);
+            
+            for (const ticker of uniqueTickers) {
+              const volData = volumeData[ticker];
+              if (volData) {
+                console.log(`[Auto-refresh] Volume data for ${ticker}:`, volData.volume, 'isMarketOpen:', volData.isMarketOpen);
+                setTickerMarketData(prev => ({
+                  ...prev,
+                  [ticker]: {
+                    ...prev[ticker],
+                    volume: volData.volume,
+                    // Only update market status if we don't already have a valid one
+                    isMarketOpen: prev[ticker]?.isMarketOpen !== null ? prev[ticker].isMarketOpen : volData.isMarketOpen
+                  }
+                }));
+              }
+            }
+          } catch (e) {
+            console.warn('[Auto-refresh] Volume data fetching failed:', e);
           }
         }
       } catch (error) {
@@ -1363,6 +1400,64 @@ const App: React.FC = () => {
                             console.warn('[Refresh Prices] Method 3 failed:', e);
                           }
                           
+                          // Method 4: Enhanced data fetching as final fallback
+                          if (successCount === 0) {
+                            try {
+                              console.log('[Refresh Prices] Method 4: Trying enhanced data fetching');
+                              for (const ticker of uniqueTickers) {
+                                try {
+                                  const enhancedData = await fetchEnhancedStockData(ticker);
+                                  if (enhancedData?.currentPrice) {
+                                    console.log(`[Refresh Prices] Enhanced data updating ${ticker} to price:`, enhancedData.currentPrice, 'volume:', enhancedData.volume);
+                                    updateAllTradesWithCurrentPrice(ticker, enhancedData.currentPrice);
+                                    
+                                    // Also update market data for volume and market status
+                                    setTickerMarketData(prev => ({
+                                      ...prev,
+                                      [ticker]: {
+                                        volume: enhancedData.volume || null,
+                                        isMarketOpen: enhancedData.isMarketOpen
+                                      }
+                                    }));
+                                    
+                                    successCount++;
+                                  }
+                                } catch (e) {
+                                  console.warn(`[Refresh Prices] Enhanced data failed for ${ticker}:`, e);
+                                }
+                              }
+                            } catch (e) {
+                              console.warn('[Refresh Prices] Method 4 failed:', e);
+                            }
+                          }
+                          
+                          // Method 5: Fetch volume data separately if we have prices but no volume
+                          if (successCount > 0) {
+                            try {
+                              console.log('[Refresh Prices] Method 5: Fetching volume data separately');
+                              const { fetchVolumeData } = await import('./utils/yahoo');
+                              const volumeData = await fetchVolumeData(uniqueTickers, true);
+                              
+                              for (const ticker of uniqueTickers) {
+                                const volData = volumeData[ticker];
+                                if (volData) {
+                                  console.log(`[Refresh Prices] Volume data for ${ticker}:`, volData.volume, 'isMarketOpen:', volData.isMarketOpen);
+                                  setTickerMarketData(prev => ({
+                                    ...prev,
+                                    [ticker]: {
+                                      ...prev[ticker],
+                                      volume: volData.volume,
+                                      // Only update market status if we don't already have a valid one
+                                      isMarketOpen: prev[ticker]?.isMarketOpen !== null ? prev[ticker].isMarketOpen : volData.isMarketOpen
+                                    }
+                                  }));
+                                }
+                              }
+                            } catch (e) {
+                              console.warn('[Refresh Prices] Volume data fetching failed:', e);
+                            }
+                          }
+                          
                           // Final result
                           if (successCount === 0) {
                             console.error('[Refresh Prices] All methods failed - no prices updated');
@@ -1806,9 +1901,10 @@ const App: React.FC = () => {
                                       const md = tickerMarketData[trade.ticker.toUpperCase()];
                                       const vol = md?.volume ?? metrics.volume;
                                       console.log(`[Volume Display] ${trade.ticker} - Market Data:`, md, 'Metrics Volume:', metrics.volume, 'Final Volume:', vol);
-                                      return (metrics.currentPrice && vol && vol > 0)
-                                        ? `${(vol / 1000000).toFixed(1)}M`
-                                        : (vol === 0 ? '0' : '—');
+                                      if (vol !== null && vol !== undefined && vol >= 0) {
+                                        return vol === 0 ? '0' : `${(vol / 1000000).toFixed(1)}M`;
+                                      }
+                                      return '—';
                                     })()}
                                   </div>
                                   <div className={`text-xs transition-all duration-300 ${
@@ -1819,10 +1915,14 @@ const App: React.FC = () => {
                                       const isOpen = (md?.isMarketOpen != null) ? md.isMarketOpen : metrics.isMarketOpen;
                                       const vol = md?.volume ?? metrics.volume;
                                       
+                                      console.log(`[Market Status Debug] ${trade.ticker} - Market Data:`, md, 'isOpen:', isOpen, 'vol:', vol);
+                                      
                                       // Weekend override - markets are always closed on weekends
                                       const now = new Date();
                                       const dayOfWeek = now.getDay();
                                       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                                      
+                                      console.log(`[Market Status Debug] ${trade.ticker} - Day of week: ${dayOfWeek}, isWeekend: ${isWeekend}`);
                                       
                                       if (isWeekend) {
                                         return '🔴 Closed (Weekend)';
