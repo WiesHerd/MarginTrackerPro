@@ -2549,150 +2549,98 @@ const App: React.FC = () => {
                 )}
               </div>
 
-              {/* Modern Google-Style Correlation Analysis */}
+              {/* Simple Correlation Analysis */}
               {showComparison && chartData.length > 0 && comparisonData.length > 0 && (
-                <div className={`rounded-xl border-0 shadow-sm ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/30' 
-                    : 'bg-gradient-to-br from-white to-gray-50/50 border border-gray-200/50'
+                <div className={`p-4 rounded-lg border ${
+                  isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-gray-200'
                 }`}>
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-gray-200/20">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                          Correlation Analysis
-                        </h3>
-                        <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
-                          How {ticker} and {comparisonTicker} move together
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Correlation: {ticker} vs {comparisonTicker}
+                    </h3>
                   </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    {(() => {
-                      const correlation = calculateCorrelation(chartData, comparisonData);
-                      const correlationStrength = Math.abs(correlation);
-                      const isPositive = correlation > 0;
-                      
-                      // Modern Google-style color scheme
-                      let strengthColor = '';
-                      let strengthText = '';
-                      let strengthIcon = '';
-                      let interpretation = '';
-                      let insight = '';
-                      
-                      if (correlationStrength > 0.7) {
-                        strengthText = 'Strong';
-                        strengthColor = isPositive ? 'text-green-600' : 'text-red-600';
-                        strengthIcon = isPositive ? '📈' : '📉';
-                        interpretation = isPositive 
-                          ? 'These stocks move very similarly. When one rises, the other typically rises too.'
-                          : 'These stocks have a strong inverse relationship. When one rises, the other typically falls.';
-                        insight = 'High correlation suggests similar market exposure and risk factors.';
-                      } else if (correlationStrength > 0.4) {
-                        strengthText = 'Moderate';
-                        strengthColor = isPositive ? 'text-blue-600' : 'text-orange-600';
-                        strengthIcon = isPositive ? '📊' : '🔄';
-                        interpretation = isPositive 
-                          ? 'These stocks show moderate correlation. They tend to move in the same direction but not always.'
-                          : 'These stocks show moderate inverse correlation. They tend to move in opposite directions.';
-                        insight = 'Moderate correlation indicates some shared market factors but independent drivers.';
-                      } else if (correlationStrength > 0.2) {
-                        strengthText = 'Weak';
-                        strengthColor = 'text-yellow-600';
-                        strengthIcon = '📉';
-                        interpretation = 'These stocks show weak correlation. Their movements are mostly independent.';
-                        insight = 'Low correlation suggests different market drivers and diversification benefits.';
-                      } else {
-                        strengthText = 'Very Weak';
-                        strengthColor = 'text-gray-500';
-                        strengthIcon = '➖';
-                        interpretation = 'These stocks are essentially uncorrelated. Their price movements are independent.';
-                        insight = 'Very low correlation indicates completely different market factors.';
-                      }
-                      
-                      return (
-                        <div className="space-y-4">
-                          {/* Main Correlation Display */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <span className="text-2xl">{strengthIcon}</span>
-                              <div>
-                                <div className={`text-2xl font-bold ${strengthColor}`}>
-                                  {correlation.toFixed(3)}
-                                </div>
-                                <div className={`text-sm font-medium ${strengthColor}`}>
-                                  {strengthText} {isPositive ? 'Positive' : 'Negative'}
-                                </div>
-                              </div>
+                  
+                  {(() => {
+                    const correlation = calculateCorrelation(chartData, comparisonData);
+                    const correlationStrength = Math.abs(correlation);
+                    const isPositive = correlation > 0;
+                    
+                    let strengthText = '';
+                    let strengthColor = '';
+                    let interpretation = '';
+                    
+                    if (correlationStrength > 0.7) {
+                      strengthText = 'Strong';
+                      strengthColor = isPositive ? 'text-green-600' : 'text-red-600';
+                      interpretation = isPositive 
+                        ? 'These stocks move very similarly.'
+                        : 'These stocks have a strong inverse relationship.';
+                    } else if (correlationStrength > 0.4) {
+                      strengthText = 'Moderate';
+                      strengthColor = isPositive ? 'text-blue-600' : 'text-orange-600';
+                      interpretation = isPositive 
+                        ? 'These stocks show moderate correlation.'
+                        : 'These stocks show moderate inverse correlation.';
+                    } else if (correlationStrength > 0.2) {
+                      strengthText = 'Weak';
+                      strengthColor = 'text-yellow-600';
+                      interpretation = 'These stocks show weak correlation.';
+                    } else {
+                      strengthText = 'Very Weak';
+                      strengthColor = 'text-gray-500';
+                      interpretation = 'These stocks are essentially uncorrelated.';
+                    }
+                    
+                    return (
+                      <div className="space-y-3">
+                        {/* Simple Correlation Display */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className={`text-2xl font-bold ${strengthColor}`}>
+                              {correlation.toFixed(3)}
                             </div>
-                            <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                              isPositive 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-red-100 text-red-700'
-                            }`}>
-                              {isPositive ? 'Positive' : 'Negative'} Correlation
+                            <div className={`text-sm ${strengthColor}`}>
+                              {strengthText} {isPositive ? 'Positive' : 'Negative'}
                             </div>
                           </div>
-
-                          {/* Modern Progress Bar */}
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-medium text-gray-500">
-                              <span>-1.0</span>
-                              <span>0.0</span>
-                              <span>+1.0</span>
-                            </div>
-                            <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className={`absolute top-0 h-full rounded-full transition-all duration-700 ${
-                                  isPositive 
-                                    ? (correlationStrength > 0.7 ? 'bg-green-500' : correlationStrength > 0.4 ? 'bg-blue-500' : 'bg-yellow-500')
-                                    : (correlationStrength > 0.7 ? 'bg-red-500' : correlationStrength > 0.4 ? 'bg-orange-500' : 'bg-gray-400')
-                                }`}
-                                style={{ 
-                                  width: `${Math.abs(correlation) * 100}%`,
-                                  left: correlation < 0 ? `${(1 - Math.abs(correlation)) * 100}%` : '0%'
-                                }}
-                              />
-                              <div 
-                                className="absolute top-0 w-0.5 h-full bg-gray-400"
-                                style={{ left: '50%', transform: 'translateX(-50%)' }}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Interpretation Card */}
-                          <div className={`p-4 rounded-lg ${
-                            isDarkMode ? 'bg-slate-700/30' : 'bg-gray-50'
+                          <div className={`px-2 py-1 rounded text-xs font-medium ${
+                            isPositive 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-red-100 text-red-700'
                           }`}>
-                            <div className="flex items-start gap-3">
-                              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <div>
-                                <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
-                                  {interpretation}
-                                </p>
-                                <div className={`mt-2 text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
-                                  💡 {insight}
-                                </div>
-                              </div>
-                            </div>
+                            {isPositive ? 'Positive' : 'Negative'}
                           </div>
                         </div>
-                      );
-                    })()}
-                  </div>
+                        
+                        {/* Simple Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs text-gray-500">
+                            <span>-1.0</span>
+                            <span>0.0</span>
+                            <span>+1.0</span>
+                          </div>
+                          <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-500 ${
+                                isPositive 
+                                  ? (correlationStrength > 0.7 ? 'bg-green-500' : correlationStrength > 0.4 ? 'bg-blue-500' : 'bg-yellow-500')
+                                  : (correlationStrength > 0.7 ? 'bg-red-500' : correlationStrength > 0.4 ? 'bg-orange-500' : 'bg-gray-400')
+                              }`}
+                              style={{ 
+                                width: `${Math.abs(correlation) * 100}%`,
+                                marginLeft: correlation < 0 ? `${(1 - Math.abs(correlation)) * 100}%` : '0%'
+                              }}
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Simple Interpretation */}
+                        <div className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                          {interpretation}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
