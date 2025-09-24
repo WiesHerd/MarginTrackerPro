@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ComposedChart, Area, Bar, Cell } from 'recharts';
+import { calculateSMA, calculateStdDev } from '../utils/chartCalculations';
 
 interface ChartData {
   date: string;
@@ -28,6 +29,11 @@ interface InteractiveChartProps {
   showVolSMA?: boolean;
   dividends?: { date: string; amount?: number }[];
   splits?: { date: string; ratio?: string }[];
+  // Comparison data
+  comparisonData?: ChartData[];
+  comparisonSymbol?: string;
+  showComparison?: boolean;
+  normalizeComparison?: boolean;
 }
 
 interface SelectionInfo {
@@ -46,6 +52,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
   showVolSMA = true,
   dividends = [],
   splits = [],
+  comparisonData = [],
+  comparisonSymbol = '',
+  showComparison = false,
+  normalizeComparison = true,
 }) => {
   const [selection, setSelection] = useState<SelectionInfo>({
     startPoint: null,
@@ -61,38 +71,17 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
       // Assume all overlays provided
       return data as any[];
     }
-    // Helpers
-    const sma = (arr: number[], period: number) => {
-      const out: (number | null)[] = [];
-      let sum = 0;
-      for (let i = 0; i < arr.length; i++) {
-        sum += arr[i];
-        if (i >= period) sum -= arr[i - period];
-        out.push(i >= period - 1 ? sum / period : null);
-      }
-      return out;
-    };
-    const stddev = (arr: number[], period: number, means: (number | null)[]) => {
-      const out: (number | null)[] = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (i < period - 1 || means[i] == null) { out.push(null); continue; }
-        const start = i - period + 1;
-        const slice = arr.slice(start, i + 1);
-        const mean = means[i] as number;
-        const variance = slice.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / period;
-        out.push(Math.sqrt(variance));
-      }
-      return out;
-    };
-
+    
+    // Use imported chart calculations
+    
     const closes = data.map(p => (p.close ?? p.price) || 0);
     const volumes = data.map(p => p.volume || 0);
 
-    const volSMA20 = sma(volumes, 20);
-    const sma50 = sma(closes, 50);
-    const sma200 = sma(closes, 200);
-    const midBB = sma(closes, 20);
-    const sd20 = stddev(closes, 20, midBB);
+    const volSMA20 = calculateSMA(volumes, 20);
+    const sma50 = calculateSMA(closes, 50);
+    const sma200 = calculateSMA(closes, 200);
+    const midBB = calculateSMA(closes, 20);
+    const sd20 = calculateStdDev(closes, 20, midBB);
 
     return data.map((point, index) => {
       const middle = midBB[index];
@@ -110,6 +99,87 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
       };
     });
   }, [data]);
+
+  // Process comparison data
+  const processedComparisonData = React.useMemo(() => {
+    if (!showComparison || !comparisonData.length) return [];
+    
+    if (comparisonData.length > 0 && (comparisonData[0] as any).sma50 !== undefined) {
+      // Assume all overlays provided
+      return comparisonData as any[];
+    }
+    
+    // Use imported chart calculations for comparison data
+    const closes = comparisonData.map(p => (p.close ?? p.price) || 0);
+    const volumes = comparisonData.map(p => p.volume || 0);
+
+    const volSMA20 = calculateSMA(volumes, 20);
+    const sma50 = calculateSMA(closes, 50);
+    const sma200 = calculateSMA(closes, 200);
+    const midBB = calculateSMA(closes, 20);
+    const sd20 = calculateStdDev(closes, 20, midBB);
+
+    return comparisonData.map((point, index) => {
+      const middle = midBB[index];
+      const sd = sd20[index];
+      const upper = middle != null && sd != null ? middle + 2 * sd : null;
+      const lower = middle != null && sd != null ? middle - 2 * sd : null;
+      return {
+        ...point,
+        volSMA20: volSMA20[index] ?? null,
+        sma50: sma50[index] ?? null,
+        sma200: sma200[index] ?? null,
+        bbMid: middle ?? null,
+        bbUpper: upper,
+        bbLower: lower,
+      };
+    });
+  }, [comparisonData, showComparison]);
+
+  // Merge main and comparison data for chart display
+  const mergedData = React.useMemo(() => {
+    if (!showComparison || !processedComparisonData.length) {
+      return processedData;
+    }
+
+    // Create a map of comparison data by date for efficient lookup
+    const comparisonMap = new Map();
+    processedComparisonData.forEach(point => {
+      comparisonMap.set(point.date, point);
+    });
+
+    // Find the first valid price for both datasets for normalization
+    const firstMainPrice = processedData.find(p => p.price)?.price;
+    const firstComparisonPrice = processedComparisonData.find(p => p.price)?.price;
+
+    // Merge the data, adding comparison price to each main data point
+    return processedData.map(mainPoint => {
+      const comparisonPoint = comparisonMap.get(mainPoint.date);
+      let comparisonPrice = comparisonPoint ? comparisonPoint.price : null;
+      
+      // Normalize comparison price if requested
+      if (normalizeComparison && comparisonPrice && firstMainPrice && firstComparisonPrice) {
+        // Calculate percentage change from first price for both datasets
+        const mainPercentChange = ((mainPoint.price - firstMainPrice) / firstMainPrice) * 100;
+        const comparisonPercentChange = ((comparisonPrice - firstComparisonPrice) / firstComparisonPrice) * 100;
+        
+        // Scale comparison to match main price range for visual comparison
+        const mainPriceRange = Math.max(...processedData.map(p => p.price)) - Math.min(...processedData.map(p => p.price));
+        const comparisonPriceRange = Math.max(...processedComparisonData.map(p => p.price)) - Math.min(...processedComparisonData.map(p => p.price));
+        
+        if (comparisonPriceRange > 0) {
+          // Normalize comparison to main price scale
+          const normalizedComparison = firstMainPrice + (comparisonPercentChange / 100) * firstMainPrice;
+          comparisonPrice = normalizedComparison;
+        }
+      }
+      
+      return {
+        ...mainPoint,
+        comparisonPrice,
+      };
+    });
+  }, [processedData, processedComparisonData, showComparison, normalizeComparison]);
 
   const yExtents = React.useMemo(() => {
     if (!processedData.length) return { minY: 0, maxY: 0 };
@@ -187,7 +257,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
       }`}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
-            data={processedData}
+            data={mergedData}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             onClick={handlePointClick}
           >
@@ -341,6 +411,24 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
               }}
             />
 
+            {/* Comparison Line */}
+            {showComparison && processedComparisonData.length > 0 && (
+              <Line 
+                type="monotone" 
+                dataKey="comparisonPrice" 
+                stroke={isDarkMode ? '#F59E0B' : '#D97706'} 
+                strokeWidth={2.5} 
+                strokeDasharray="5 5"
+                dot={false}
+                activeDot={{ 
+                  r: 6, 
+                  fill: isDarkMode ? '#F59E0B' : '#D97706',
+                  stroke: isDarkMode ? '#D97706' : '#B45309',
+                  strokeWidth: 2
+                }}
+              />
+            )}
+
             {/* Bollinger Bands area */}
             {showBands && <Area
               type="monotone"
@@ -424,7 +512,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
         isDarkMode ? 'bg-slate-900/30' : 'bg-gray-50'
       }`}>
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={processedData} margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
+          <ComposedChart data={mergedData} margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} opacity={0.15} />
             <XAxis 
               dataKey="date"
@@ -461,7 +549,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
               }}
             />
             <Bar yAxisId="volume" dataKey="volume" barSize={6}>
-              {processedData.map((entry, idx) => {
+              {mergedData.map((entry, idx) => {
                 const isUp = (entry.close ?? entry.price) >= (entry.open ?? entry.price);
                 const upFill = isDarkMode ? 'rgba(16, 185, 129, 0.8)' : 'rgba(5, 150, 105, 0.8)';
                 const downFill = isDarkMode ? 'rgba(239, 68, 68, 0.8)' : 'rgba(220, 38, 38, 0.8)';
@@ -478,6 +566,12 @@ const InteractiveChart: React.FC<InteractiveChartProps> = ({
       {/* Legend */}
       <div className={`mt-2 text-xs flex flex-wrap items-center gap-4 ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
         <span className="inline-flex items-center gap-2"><span className="w-3 h-1 rounded bg-emerald-500"></span>Price</span>
+        {showComparison && comparisonSymbol && (
+          <span className="inline-flex items-center gap-2">
+            <span className="w-3 h-1 rounded bg-amber-500" style={{ background: 'repeating-linear-gradient(90deg, #F59E0B 0px, #F59E0B 5px, transparent 5px, transparent 10px)' }}></span>
+            {comparisonSymbol}
+          </span>
+        )}
         {showSMA50 && <span className="inline-flex items-center gap-2"><span className="w-3 h-1 rounded bg-red-500"></span>SMA 50</span>}
         {showSMA200 && <span className="inline-flex items-center gap-2"><span className="w-3 h-1 rounded bg-orange-500"></span>SMA 200</span>}
         {showBands && <span className="inline-flex items-center gap-2"><span className="w-3 h-3 rounded border border-slate-400 bg-slate-400/20"></span>Bollinger (20,2)</span>}

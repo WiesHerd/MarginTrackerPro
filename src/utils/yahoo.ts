@@ -222,28 +222,10 @@ export async function fetchVolumeData(symbols: string[], useProxy = true): Promi
           }
         }
         
-        // Better market status detection
-        let isMarketOpen = false;
-        if (meta.regularMarketState === 'REGULAR') {
-          isMarketOpen = true;
-        } else if (meta.regularMarketState === 'PRE' || meta.regularMarketState === 'POST') {
-          // Pre/post market is considered "open" for display purposes
-          isMarketOpen = true;
-        } else if (meta.regularMarketState === 'CLOSED') {
-          isMarketOpen = false;
-        } else {
-          // For other states, try to determine from trading period
-          try {
-            const now = Math.floor(Date.now() / 1000);
-            const regular = meta?.currentTradingPeriod?.regular;
-            if (regular && typeof regular.start === 'number' && typeof regular.end === 'number') {
-              isMarketOpen = now >= regular.start && now <= regular.end;
-            }
-          } catch (e) {
-            // If we can't determine, default to false
-            isMarketOpen = false;
-          }
-        }
+        // Use centralized market status logic
+        const { determineMarketStatus } = await import('./marketStatus');
+        const marketStatus = determineMarketStatus(meta.regularMarketState, meta.currentTradingPeriod);
+        const isMarketOpen = marketStatus.isMarketOpen;
         
         results[symbol.toUpperCase()] = {
           volume: volume || null,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { fetchYahooQuotes, fetchQuoteSummary } from './utils/yahoo';
+import { calculateChartOverlays } from './utils/chartCalculations';
 import * as Papa from 'papaparse';
 import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent, Settings, PercentCircle } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
@@ -84,6 +85,14 @@ const App: React.FC = () => {
     metrics: any;
   } | null>(null);
 
+  // Comparison feature state
+  const [comparisonTicker, setComparisonTicker] = useState('');
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
+  const [comparisonPrice, setComparisonPrice] = useState<number | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [normalizeComparison, setNormalizeComparison] = useState(true);
+
   useEffect(() => {
     if (selectedTrade) {
       setSellForm({ price: '', date: new Date().toISOString().split('T')[0], qty: '' });
@@ -122,49 +131,10 @@ const App: React.FC = () => {
   // Recompute overlays whenever parameters or baseChart change
   useEffect(() => {
     if (!baseChart.length) return;
-    const closes = baseChart.map((p: any) => p.price);
-    const vols = baseChart.map((p: any) => p.volume || 0);
-    const sma = (arr: number[], period: number) => {
-      const out: (number | null)[] = [];
-      let sum = 0;
-      for (let i = 0; i < arr.length; i++) {
-        sum += arr[i];
-        if (i >= period) sum -= arr[i - period];
-        out.push(i >= period - 1 ? sum / period : null);
-      }
-      return out;
-    };
-    const stddev = (arr: number[], period: number, means: (number | null)[]) => {
-      const out: (number | null)[] = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (i < period - 1 || means[i] == null) { out.push(null); continue; }
-        const start = i - period + 1;
-        const slice = arr.slice(start, i + 1);
-        const mean = means[i] as number;
-        const variance = slice.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / period;
-        out.push(Math.sqrt(variance));
-      }
-      return out;
-    };
-
-    const volSMA = sma(vols, overlayParams.volSMA);
-    const sma50Arr = sma(closes, overlayParams.sma50);
-    const sma200Arr = sma(closes, overlayParams.sma200);
-    const mid = sma(closes, overlayParams.bbPeriod);
-    const sd = stddev(closes, overlayParams.bbPeriod, mid);
-
-    const withOverlays = baseChart.map((p: any, i: number) => ({
-      ...p,
-      volSMA20: volSMA[i],
-      sma50: sma50Arr[i],
-      sma200: sma200Arr[i],
-      bbMid: mid[i],
-      bbUpper: mid[i] != null && sd[i] != null ? (mid[i] as number) + overlayParams.bbStdDev * (sd[i] as number) : null,
-      bbLower: mid[i] != null && sd[i] != null ? (mid[i] as number) - overlayParams.bbStdDev * (sd[i] as number) : null,
-    }));
-
+    
+    const chartDataWithOverlays = calculateChartOverlays(baseChart, overlayParams);
     const visible = getVisiblePoints(selectedTimePeriod);
-    const finalData = withOverlays.length > visible ? withOverlays.slice(-visible) : withOverlays;
+    const finalData = chartDataWithOverlays.length > visible ? chartDataWithOverlays.slice(-visible) : chartDataWithOverlays;
     setChartData(finalData);
   }, [baseChart, overlayParams, selectedTimePeriod]);
 
@@ -310,6 +280,122 @@ const App: React.FC = () => {
       setChartData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch comparison ticker data
+  // Calculate correlation between two datasets
+  const calculateCorrelation = (data1: any[], data2: any[]) => {
+    if (data1.length === 0 || data2.length === 0) return 0;
+    
+    // Create a map of data2 by date for efficient lookup
+    const data2Map = new Map();
+    data2.forEach(point => {
+      data2Map.set(point.date, point.price);
+    });
+    
+    // Find matching dates and extract prices
+    const prices1: number[] = [];
+    const prices2: number[] = [];
+    
+    data1.forEach(point => {
+      const price2 = data2Map.get(point.date);
+      if (price2 !== undefined && point.price && price2) {
+        prices1.push(point.price);
+        prices2.push(price2);
+      }
+    });
+    
+    if (prices1.length < 2) return 0;
+    
+    // Calculate correlation coefficient
+    const n = prices1.length;
+    const sum1 = prices1.reduce((a, b) => a + b, 0);
+    const sum2 = prices2.reduce((a, b) => a + b, 0);
+    const sum1Sq = prices1.reduce((a, b) => a + b * b, 0);
+    const sum2Sq = prices2.reduce((a, b) => a + b * b, 0);
+    const sum12 = prices1.reduce((sum, price, i) => sum + price * prices2[i], 0);
+    
+    const numerator = n * sum12 - sum1 * sum2;
+    const denominator = Math.sqrt((n * sum1Sq - sum1 * sum1) * (n * sum2Sq - sum2 * sum2));
+    
+    return denominator === 0 ? 0 : numerator / denominator;
+  };
+
+  const fetchComparisonData = async (symbol: string, timePeriod: string = selectedTimePeriod) => {
+    setComparisonLoading(true);
+    try {
+      // Use Vercel API route for production, fallback to proxy for development
+      const isProduction = window.location.hostname !== 'localhost';
+      const apiUrl = isProduction 
+        ? `/api/fetch-price?symbol=${symbol}&timePeriod=${timePeriod}`
+        : `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?range=${timePeriod === '1M' ? '1mo' : timePeriod}&interval=1d&region=US&lang=en-US`)}`;
+      
+      console.log('[fetchComparisonData] fetching', apiUrl);
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      console.log('[fetchComparisonData] response received');
+      
+      // Handle both API route response and proxy response
+      if (data.success && data.price) {
+        // New API route format
+        console.log('[fetchComparisonData] API route price', data.price);
+        setComparisonPrice(data.price);
+        setComparisonData(data.chartData || []);
+        console.log('API route comparison data processed:', data.chartData?.length || 0, 'points');
+      } else if (data.chart && data.chart.result && data.chart.result[0]) {
+        // Legacy proxy format
+        console.log('[fetchComparisonData] proxy result path');
+        const result = data.chart.result[0];
+        const price = result.meta.regularMarketPrice;
+        setComparisonPrice(price);
+        
+        // Extract comprehensive historical data for chart
+        if (result.timestamp && result.indicators && result.indicators.quote) {
+          const timestamps = result.timestamp;
+          const quotes = result.indicators.quote[0];
+          
+          // Create comprehensive chart data with all OHLC data
+          const chartPoints = timestamps.map((timestamp: number, index: number) => {
+            const open = quotes.open[index];
+            const high = quotes.high[index];
+            const low = quotes.low[index];
+            const close = quotes.close[index];
+            const volume = quotes.volume[index];
+            
+            // Only include points with valid close price
+            if (close && close > 0) {
+              const date = new Date(timestamp * 1000);
+              const change = close - open;
+              const changePercent = open ? (change / open) * 100 : 0;
+              
+              return {
+                date: date.toISOString().split('T')[0],
+                price: close, // Use close as the main price for the line
+                open: open || close,
+                high: high || close,
+                low: low || close,
+                volume: volume || 0,
+                change: change,
+                changePercent: changePercent,
+                dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                formattedDate: date.toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })
+              };
+            }
+            return null;
+          }).filter((point: any) => point !== null); // Remove invalid points
+          
+          setComparisonData(chartPoints);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching comparison data:', error);
+    } finally {
+      setComparisonLoading(false);
     }
   };
 
@@ -2360,44 +2446,107 @@ const App: React.FC = () => {
           }`}>
             {/* Mobile-First Header - World-Class Standards */}
             <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
-              {/* Mobile-First Ticker Input - World-Class Standards */}
-              <div className="flex items-center justify-between gap-3 w-full">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <label className={`text-base font-medium whitespace-nowrap flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+              {/* Comparison Toggle */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="showComparison"
+                  checked={showComparison}
+                  onChange={(e) => {
+                    setShowComparison(e.target.checked);
+                    if (!e.target.checked) {
+                      setComparisonTicker('');
+                      setComparisonData([]);
+                      setComparisonPrice(null);
+                    }
+                  }}
+                  className={`w-4 h-4 rounded border-2 transition-colors duration-200 ${
+                    isDarkMode 
+                      ? 'bg-slate-700 border-slate-500 text-blue-500 focus:ring-blue-400' 
+                      : 'bg-white border-gray-300 text-blue-600 focus:ring-blue-500'
+                  }`}
+                />
+                <label htmlFor="showComparison" className={`text-sm font-medium cursor-pointer transition-colors duration-200 ${
+                  isDarkMode ? 'text-slate-200 hover:text-white' : 'text-gray-700 hover:text-gray-900'
+                }`}>
+                  Enable Comparison Mode
+                </label>
+              </div>
+
+              {/* Mobile-Optimized Ticker Input Section */}
+              <div className="space-y-3">
+                {/* Primary Ticker Input */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <label className={`text-sm font-medium w-full sm:w-20 flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
                     Ticker
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Enter ticker (e.g., AAPL)"
-                    value={ticker}
-                    onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    className={`w-24 sm:w-32 md:w-40 px-4 py-3 border-2 rounded-xl focus:ring-4 transition-all duration-200 shadow-sm text-center font-semibold text-base min-h-[44px] ${
-                      isDarkMode 
-                        ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-300 focus:ring-sky-500/30 focus:border-sky-400'
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-sky-500/30 focus:border-sky-400'
-                    }`}
-                    style={{ minHeight: '44px' }} // WCAG accessibility standard
-                  />
+                  <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                    <input
+                      type="text"
+                      placeholder="Enter ticker (e.g., AAPL)"
+                      value={ticker}
+                      onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                      className={`flex-1 px-3 py-3 sm:py-2 border rounded-lg focus:ring-2 focus:outline-none transition-all duration-200 text-base ${
+                        isDarkMode 
+                          ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400 focus:ring-blue-500/30 focus:border-blue-400'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500/30 focus:border-blue-400'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('[GetPrice] clicked', { ticker, selectedTimePeriod });
+                        fetchPrice(ticker);
+                      }}
+                      disabled={!ticker || loading}
+                      className={`px-4 py-3 sm:py-2 rounded-lg font-medium disabled:opacity-50 transition-all duration-200 text-base ${
+                        isDarkMode 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {loading ? 'Loading...' : 'Get'}
+                    </button>
+                  </div>
                 </div>
-                {/* Get Button - 44px minimum touch target */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log('[GetPrice] clicked', { ticker, selectedTimePeriod });
-                    fetchPrice(ticker);
-                  }}
-                  disabled={!ticker || loading}
-                  className={`px-4 py-3 rounded-xl font-semibold disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all duration-200 shadow-lg min-h-[44px] min-w-[44px] ${
-                    isDarkMode 
-                      ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white active:scale-95'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white active:scale-95'
-                  }`}
-                  style={{ minHeight: '44px', minWidth: '44px' }} // WCAG accessibility standard
-                >
-                  <Search className="h-5 w-5" />
-                  <span className="hidden sm:inline text-base">{loading ? 'Loading...' : 'Get'}</span>
-                  <span className="sm:hidden text-base">{loading ? '...' : 'Get'}</span>
-                </button>
+
+                {/* Comparison Ticker Input */}
+                {showComparison && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <label className={`text-sm font-medium w-full sm:w-20 flex-shrink-0 ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                      Compare
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                      <input
+                        type="text"
+                        placeholder="Enter ticker (e.g., SPY)"
+                        value={comparisonTicker}
+                        onChange={(e) => setComparisonTicker(e.target.value.toUpperCase())}
+                        className={`flex-1 px-3 py-3 sm:py-2 border rounded-lg focus:ring-2 focus:outline-none transition-all duration-200 text-base ${
+                          isDarkMode 
+                            ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400 focus:ring-orange-500/30 focus:border-orange-400'
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-orange-500/30 focus:border-orange-400'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (comparisonTicker.trim()) {
+                            fetchComparisonData(comparisonTicker.trim());
+                          }
+                        }}
+                        disabled={!comparisonTicker || comparisonLoading}
+                        className={`px-4 py-3 sm:py-2 rounded-lg font-medium disabled:opacity-50 transition-all duration-200 text-base ${
+                          isDarkMode 
+                            ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                            : 'bg-orange-600 hover:bg-orange-700 text-white'
+                        }`}
+                      >
+                        {comparisonLoading ? 'Loading...' : 'Compare'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Recent Tickers - Mobile-Optimized */}
@@ -2442,6 +2591,7 @@ const App: React.FC = () => {
                     }`}>Professional Trading Chart</h3>
                   </div>
               </div>
+
               
               {currentPrice && (
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-4">
@@ -2559,6 +2709,10 @@ const App: React.FC = () => {
                   showVolSMA={overlayOptions.volSMA}
                   dividends={eventMarkers.dividends}
                   splits={eventMarkers.splits}
+                  comparisonData={comparisonData}
+                  comparisonSymbol={comparisonTicker}
+                  showComparison={showComparison}
+                  normalizeComparison={normalizeComparison}
                 />
                 </div>
 
