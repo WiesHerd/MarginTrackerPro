@@ -1253,6 +1253,7 @@ const App: React.FC = () => {
                                     
                                     // Also update market data for volume and market status
                                     console.log(`[Volume Debug] ${quote.symbol} - Volume:`, quote.regularMarketVolume, 'Market State:', quote.marketState);
+                                    console.log(`[Volume Debug] Full quote object:`, quote);
                                     
                                     // Better market status detection
                                     const isMarketOpen = quote.marketState === 'REGULAR' || quote.marketState === 'PRE' || quote.marketState === 'POST';
@@ -1806,9 +1807,13 @@ const App: React.FC = () => {
                                       const md = tickerMarketData[trade.ticker.toUpperCase()];
                                       const vol = md?.volume ?? metrics.volume;
                                       console.log(`[Volume Display] ${trade.ticker} - Market Data:`, md, 'Metrics Volume:', metrics.volume, 'Final Volume:', vol);
-                                      return (metrics.currentPrice && vol && vol > 0)
-                                        ? `${(vol / 1000000).toFixed(1)}M`
-                                        : (vol === 0 ? '0' : '—');
+                                      console.log(`[Volume Display] Current Price:`, metrics.currentPrice, 'Volume > 0:`, vol > 0);
+                                      
+                                      // Show volume if we have it, even if it's 0
+                                      if (metrics.currentPrice && vol !== null && vol !== undefined) {
+                                        return vol > 0 ? `${(vol / 1000000).toFixed(1)}M` : '0';
+                                      }
+                                      return '—';
                                     })()}
                                   </div>
                                   <div className={`text-xs transition-all duration-300 ${
@@ -1828,7 +1833,8 @@ const App: React.FC = () => {
                                         return '🔴 Closed (Weekend)';
                                       }
                                       
-                                      if (isOpen === false && (vol === 0 || vol === null)) {
+                                      // Show market status based on isOpen, not volume
+                                      if (isOpen === false) {
                                         return '🔴 Closed';
                                       }
                                       return isOpen === null ? '—' : (isOpen ? '🟢 Open' : '🔴 Closed');
