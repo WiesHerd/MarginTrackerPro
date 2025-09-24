@@ -2549,6 +2549,118 @@ const App: React.FC = () => {
                 )}
               </div>
 
+              {/* Correlation Analysis Section */}
+              {showComparison && chartData.length > 0 && comparisonData.length > 0 && (
+                <div className={`p-4 rounded-lg border ${
+                  isDarkMode ? 'bg-slate-800/50 border-slate-600/50' : 'bg-gray-50 border-gray-200'
+                }`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-slate-200' : 'text-gray-800'}`}>
+                      Correlation Analysis
+                    </h3>
+                  </div>
+                  
+                  {(() => {
+                    const correlation = calculateCorrelation(chartData, comparisonData);
+                    const correlationStrength = Math.abs(correlation);
+                    const isPositive = correlation > 0;
+                    
+                    let strengthText = '';
+                    let strengthColor = '';
+                    let interpretation = '';
+                    
+                    if (correlationStrength > 0.7) {
+                      strengthText = 'Strong';
+                      strengthColor = isDarkMode ? 'text-green-400' : 'text-green-600';
+                      interpretation = isPositive 
+                        ? 'These stocks move very similarly - when one goes up, the other tends to go up as well.'
+                        : 'These stocks have a strong inverse relationship - when one goes up, the other tends to go down.';
+                    } else if (correlationStrength > 0.4) {
+                      strengthText = 'Moderate';
+                      strengthColor = isDarkMode ? 'text-yellow-400' : 'text-yellow-600';
+                      interpretation = isPositive 
+                        ? 'These stocks show moderate correlation - they tend to move in the same direction but not always.'
+                        : 'These stocks show moderate inverse correlation - they tend to move in opposite directions.';
+                    } else if (correlationStrength > 0.2) {
+                      strengthText = 'Weak';
+                      strengthColor = isDarkMode ? 'text-orange-400' : 'text-orange-600';
+                      interpretation = 'These stocks show weak correlation - their movements are mostly independent of each other.';
+                    } else {
+                      strengthText = 'Very Weak';
+                      strengthColor = isDarkMode ? 'text-gray-400' : 'text-gray-500';
+                      interpretation = 'These stocks are essentially uncorrelated - their price movements are independent.';
+                    }
+                    
+                    return (
+                      <div className="space-y-3">
+                        {/* Correlation Coefficient */}
+                        <div className="flex items-center justify-between">
+                          <span className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+                            Correlation Coefficient:
+                          </span>
+                          <span className={`text-lg font-bold ${strengthColor}`}>
+                            {correlation.toFixed(3)}
+                          </span>
+                        </div>
+                        
+                        {/* Strength Indicator */}
+                        <div className="flex items-center justify-between">
+                          <span className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+                            Relationship Strength:
+                          </span>
+                          <span className={`font-semibold ${strengthColor}`}>
+                            {strengthText} {isPositive ? 'Positive' : 'Negative'}
+                          </span>
+                        </div>
+                        
+                        {/* Visual Correlation Bar */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className={isDarkMode ? 'text-slate-400' : 'text-gray-500'}>-1.0</span>
+                            <span className={isDarkMode ? 'text-slate-400' : 'text-gray-500'}>0.0</span>
+                            <span className={isDarkMode ? 'text-slate-400' : 'text-gray-500'}>+1.0</span>
+                          </div>
+                          <div className={`h-2 rounded-full ${isDarkMode ? 'bg-slate-700' : 'bg-gray-200'}`}>
+                            <div 
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                isPositive 
+                                  ? (correlationStrength > 0.7 ? 'bg-green-500' : correlationStrength > 0.4 ? 'bg-yellow-500' : 'bg-orange-500')
+                                  : (correlationStrength > 0.7 ? 'bg-red-500' : correlationStrength > 0.4 ? 'bg-pink-500' : 'bg-gray-400')
+                              }`}
+                              style={{ 
+                                width: `${Math.abs(correlation) * 100}%`,
+                                marginLeft: correlation < 0 ? `${(1 - Math.abs(correlation)) * 100}%` : '0%'
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        {/* Interpretation */}
+                        <div className={`p-3 rounded-lg ${
+                          isDarkMode ? 'bg-slate-700/30' : 'bg-white/50'
+                        }`}>
+                          <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                            {interpretation}
+                          </p>
+                        </div>
+                        
+                        {/* Trading Insights */}
+                        <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
+                          <strong>💡 Trading Insight:</strong> {
+                            correlationStrength > 0.7 
+                              ? 'High correlation suggests these stocks may respond similarly to market conditions.'
+                              : correlationStrength > 0.4
+                              ? 'Moderate correlation indicates some shared market factors but independent drivers.'
+                              : 'Low correlation suggests these stocks are driven by different market factors.'
+                          }
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Recent Tickers - Mobile-Optimized */}
               {recentTickers.length > 0 && (
                 <div className="flex flex-col gap-3">
