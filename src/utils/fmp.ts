@@ -106,7 +106,7 @@ export interface AnalystEstimate {
 }
 
 // Get API key from environment or use demo key
-const FMP_API_KEY = process.env.REACT_APP_FMP_API_KEY || 'demo';
+const FMP_API_KEY = import.meta.env.VITE_FMP_API_KEY || 'demo';
 
 export const fetchAnalystRecommendations = async (symbol: string): Promise<AnalystRecommendation[]> => {
   try {
