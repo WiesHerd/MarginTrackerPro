@@ -1201,9 +1201,34 @@ const App: React.FC = () => {
                   <h2 className={`text-xl font-bold transition-all duration-300 ${
                     isDarkMode ? 'text-white' : 'text-gray-900'
                   }`}>Trading Positions</h2>
+                  
+                  {/* Debug Panel - Remove this after fixing */}
+                  <div className={`ml-4 p-2 rounded text-xs ${
+                    isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    <div>Market Data: {Object.keys(tickerMarketData).length} tickers</div>
+                    {Object.entries(tickerMarketData).map(([ticker, data]) => (
+                      <div key={ticker} className="text-xs">
+                        {ticker}: vol={data.volume}, open={data.isMarketOpen}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 {trades.length > 0 && (
                   <div className="flex justify-end">
+                    {/* Volume Debug Button */}
+                    <button
+                      onClick={() => {
+                        console.log('[Volume Debug] Current tickerMarketData:', tickerMarketData);
+                        console.log('[Volume Debug] Trades:', trades.map(t => ({ ticker: t.ticker, metrics: getTradeMetrics(t) })));
+                      }}
+                      className={`px-3 py-1 text-xs rounded transition-all duration-300 ${
+                        isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Debug Volume
+                    </button>
+                    
                     {/* Manual Refresh Button */}
                     <button
                     onClick={async () => {
@@ -1253,6 +1278,14 @@ const App: React.FC = () => {
                                     
                                     // Also update market data for volume and market status
                                     console.log(`[Volume Debug] ${quote.symbol} - Volume:`, quote.regularMarketVolume, 'Market State:', quote.marketState);
+                                    console.log(`[Volume Debug] ${quote.symbol} - Full Quote Object:`, quote);
+                                    console.log(`[Volume Debug] ${quote.symbol} - Available volume fields:`, {
+                                      regularMarketVolume: quote.regularMarketVolume,
+                                      volume: quote.volume,
+                                      averageVolume: quote.averageVolume,
+                                      averageVolume10days: quote.averageVolume10days,
+                                      averageVolume3months: quote.averageVolume3months
+                                    });
                                     
                                     // Better market status detection
                                     const isMarketOpen = quote.marketState === 'REGULAR' || quote.marketState === 'PRE' || quote.marketState === 'POST';
@@ -1265,10 +1298,24 @@ const App: React.FC = () => {
                                     
                                     console.log(`[Market Status] ${quote.symbol} - Market State: ${quote.marketState}, Is Open: ${isMarketOpen}, Weekend: ${isWeekend}, Final: ${finalMarketStatus}`);
                                     
+                                    // Try multiple volume fields as fallback
+                                    const volumeValue = quote.regularMarketVolume || 
+                                                       quote.volume || 
+                                                       quote.averageVolume || 
+                                                       quote.averageVolume10days || 
+                                                       quote.averageVolume3months || 
+                                                       null;
+                                    
+                                    console.log(`[Volume Debug] ${quote.symbol} - Selected volume:`, volumeValue, 'from fields:', {
+                                      regularMarketVolume: quote.regularMarketVolume,
+                                      volume: quote.volume,
+                                      averageVolume: quote.averageVolume
+                                    });
+                                    
                                     setTickerMarketData(prev => ({
                                       ...prev,
                                       [quote.symbol]: {
-                                        volume: quote.regularMarketVolume || null,
+                                        volume: volumeValue,
                                         isMarketOpen: finalMarketStatus
                                       }
                                     }));
@@ -1806,9 +1853,17 @@ const App: React.FC = () => {
                                       const md = tickerMarketData[trade.ticker.toUpperCase()];
                                       const vol = md?.volume ?? metrics.volume;
                                       console.log(`[Volume Display] ${trade.ticker} - Market Data:`, md, 'Metrics Volume:', metrics.volume, 'Final Volume:', vol);
-                                      return (metrics.currentPrice && vol && vol > 0)
-                                        ? `${(vol / 1000000).toFixed(1)}M`
-                                        : (vol === 0 ? '0' : '—');
+                                      console.log(`[Volume Debug] ${trade.ticker} - Current Price:`, metrics.currentPrice, 'Volume:`, vol, 'Volume Type:`, typeof vol);
+                                      
+                                      // Enhanced volume display logic
+                                      if (vol && vol > 0) {
+                                        return `${(vol / 1000000).toFixed(1)}M`;
+                                      } else if (vol === 0) {
+                                        return '0';
+                                      } else {
+                                        console.log(`[Volume Debug] ${trade.ticker} - No volume data available, showing dash`);
+                                        return '—';
+                                      }
                                     })()}
                                   </div>
                                   <div className={`text-xs transition-all duration-300 ${
