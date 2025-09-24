@@ -459,6 +459,8 @@ const App: React.FC = () => {
                   }));
                 }
               }
+              // Update timestamp for successful auto-refresh
+              setLastRefreshTime(new Date().toLocaleTimeString());
               return; // Success, exit early
             }
           } catch (e) {
@@ -515,6 +517,9 @@ const App: React.FC = () => {
             console.warn('[Auto-refresh] Volume data fetching failed:', e);
           }
         }
+        
+        // Update timestamp for successful auto-refresh (fallback)
+        setLastRefreshTime(new Date().toLocaleTimeString());
       } catch (error) {
         console.error('[Auto-refresh] Price update failed:', error);
       }
@@ -884,6 +889,14 @@ const App: React.FC = () => {
                 }`}>
                   {priceUpdateInterval ? 'Live' : 'Paused'}
                 </span>
+                
+                {lastRefreshTime && (
+                  <span className={`text-xs px-1.5 py-0.5 rounded border ${
+                    isDarkMode ? 'border-blue-500/40 text-blue-300' : 'border-blue-300 text-blue-600'
+                  }`}>
+                    📅 {lastRefreshTime}
+                  </span>
+                )}
               </div>
             </div>
             
