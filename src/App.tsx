@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { fetchYahooQuotes, fetchQuoteSummary } from './utils/yahoo';
 import { calculateChartOverlays } from './utils/chartCalculations';
+import { fetchAnalystRecommendations, fetchAnalystEstimates, AnalystRecommendation, AnalystEstimate } from './utils/fmp';
+import AnalystRecommendations from './components/AnalystRecommendations';
 import * as Papa from 'papaparse';
 import { Search, TrendingUp, DollarSign, BarChart3, X, Clock, Calculator, Trash2, TrendingDown, Download, FileText, Percent, Settings, PercentCircle } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
@@ -92,6 +94,11 @@ const App: React.FC = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [normalizeComparison, setNormalizeComparison] = useState(true);
+  
+  // Analyst recommendations state
+  const [analystRecommendations, setAnalystRecommendations] = useState<AnalystRecommendation[]>([]);
+  const [analystEstimates, setAnalystEstimates] = useState<AnalystEstimate[]>([]);
+  const [analystLoading, setAnalystLoading] = useState(false);
 
   useEffect(() => {
     if (selectedTrade) {
@@ -281,6 +288,9 @@ const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
+    
+    // Fetch analyst data for the ticker
+    fetchAnalystData(symbol);
   };
 
   // Fetch comparison ticker data
@@ -396,6 +406,33 @@ const App: React.FC = () => {
       console.error('Error fetching comparison data:', error);
     } finally {
       setComparisonLoading(false);
+    }
+  };
+
+  const fetchAnalystData = async (symbol: string) => {
+    setAnalystLoading(true);
+    try {
+      console.log('[fetchAnalystData] fetching analyst data for', symbol);
+      
+      // Fetch both recommendations and estimates in parallel
+      const [recommendations, estimates] = await Promise.all([
+        fetchAnalystRecommendations(symbol),
+        fetchAnalystEstimates(symbol)
+      ]);
+      
+      console.log('[fetchAnalystData] received data:', {
+        recommendations: recommendations.length,
+        estimates: estimates.length
+      });
+      
+      setAnalystRecommendations(recommendations);
+      setAnalystEstimates(estimates);
+    } catch (error) {
+      console.error('Error fetching analyst data:', error);
+      setAnalystRecommendations([]);
+      setAnalystEstimates([]);
+    } finally {
+      setAnalystLoading(false);
     }
   };
 
@@ -2804,6 +2841,15 @@ const App: React.FC = () => {
                   normalizeComparison={normalizeComparison}
                 />
                 </div>
+
+                {/* Analyst Recommendations */}
+                <AnalystRecommendations
+                  recommendations={analystRecommendations}
+                  estimates={analystEstimates}
+                  symbol={ticker}
+                  isDarkMode={isDarkMode}
+                  loading={analystLoading}
+                />
 
                 {/* Chart Overlay Controls (below chart) */}
                 <div className={`mt-3 p-4 rounded-lg ${isDarkMode ? 'bg-slate-800/50' : 'bg-gray-50'}`}>
